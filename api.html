@@ -517,9 +517,9 @@ the audioframes set in audioqueue.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>renderer</strong> : sound_renderers.SoundRenderer</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>renderer</strong> : soundrenderers.SoundRenderer</p>
 <blockquote>
-<div><p>A subclass of sound_renderers.SoundRenderer that takes care of the
+<div><p>A subclass of soundrenderers.SoundRenderer that takes care of the
 audio rendering.</p>
 </div></blockquote>
 </td>
@@ -571,10 +571,10 @@ should take care of the rendering.</p>
 <dl class="class">
 <dt id="mediadecoder.timer.Timer">
 <em class="property">class </em><code class="descclassname">mediadecoder.timer.</code><code class="descname">Timer</code><span class="sig-paren">(</span><em>fps=None</em>, <em>max_duration=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/timer.html#Timer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.timer.Timer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Timer serves as a video clock that can be used which frame needs to be
-displayed at an arbitrary moment in time. It runs in a separate thread. 
+<dd><p>Timer serves as a video clock that is used to determine which frame needs to be
+displayed at the specified time. It runs in a separate thread. 
 Time can be polled by checking its property clock.time, and the current frame
-can be determined using clock.current_frame.</p>
+can be determined by checking clock.current_frame.</p>
 <p class="rubric">Attributes</p>
 <table border="1" class="longtable docutils">
 <colgroup>
