@@ -213,8 +213,8 @@ class Decoder(object):
 
 		Parameters
 		----------
-		renderer : sound_renderers.SoundRenderer
-			A subclass of sound_renderers.SoundRenderer that takes care of the
+		renderer : soundrenderers.SoundRenderer
+			A subclass of soundrenderers.SoundRenderer that takes care of the
 			audio rendering.
 
 		Raises

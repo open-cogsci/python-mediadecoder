@@ -11,10 +11,10 @@ from mediadecoder.states import *
 from moviepy.tools import cvsecs
 
 class Timer(object):
-	""" Timer serves as a video clock that can be used which frame needs to be
-	displayed at an arbitrary moment in time. It runs in a separate thread. 
+	""" Timer serves as a video clock that is used to determine which frame needs to be
+	displayed at the specified time. It runs in a separate thread. 
 	Time can be polled by checking its property clock.time, and the current frame
-	can be determined using clock.current_frame. """
+	can be determined by checking clock.current_frame. """
 
 	def __init__(self, fps=None, max_duration=None):
 		""" Constructor.
