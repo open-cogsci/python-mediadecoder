@@ -1,9 +1,9 @@
 #Movie decoder for Python based on MoviePy
 
 This library allows you to play and render movies in Python. It is based on the
-(rather excellent) [MoviePy](http://zulko.github.io/moviepy/) module created by Zulko, which offers a convenient Python interface to ffmpeg. This library should hence be able to decode any format that ffmpeg supports. If ffmpeg is not found to be installed, moviepy will download it for you on first usage, which may take some time (keep an eye on that terminal/command prompt to see the download progress).
+(rather excellent) [MoviePy](http://zulko.github.io/moviepy/) module created by Zulko, which offers a convenient Python interface to ffmpeg. This library should hence be able to decode any format that ffmpeg supports. If ffmpeg is not found to be installed, moviepy will download it for you on first use, which may take some time (keep an eye on that terminal/command prompt to see the download progress).
 
-The actual rendering of each frame one will have to implement himself, but you can use the play.py module included in this repository as an example. The `play.py` file contains an example of how to play a video using OpenGL+pygame for the video rendering and pyaudio for audio playback (using pygame.mixer is also an option, but that doesn't work smoothly yet).
+One will have to implement the actual rendering of each frame himself, but you can use the play.py module included in this repository as an example. The `play.py` shows how to play a video using OpenGL+pygame for the video rendering and pyaudio for audio playback (using pygame.mixer is also an option, but that doesn't work smoothly yet).
 
 To see it run right away, you can invoke play.py with the following options:
 

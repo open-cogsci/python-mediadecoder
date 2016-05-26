@@ -14,7 +14,7 @@ import mediadecoder # For the state constants
 from mediadecoder.decoder import Decoder 
 from mediadecoder.soundrenderers import *
 
-class videoPlayer():
+class VideoPlayer():
 	""" This is an example videoplayer that uses pygame+pyopengl to render a video.
 	It uses the Decoder object to decode the video- and audiostream frame by frame.
 	It shows each videoframe in a window and places the audioframes in a buffer
@@ -304,7 +304,7 @@ if __name__ == '__main__':
 		sys.exit(2)
 
 	windowRes = tuple(map(int,resolution))
-	myVideoPlayer = videoPlayer(windowRes, fullscreen = args.fullscreen, 
+	myVideoPlayer = VideoPlayer(windowRes, fullscreen = args.fullscreen, 
 		soundrenderer = args.soundrenderer, loop=args.loop)
 	myVideoPlayer.load_media(args.mediafile)
 	logging.debug("Starting video")

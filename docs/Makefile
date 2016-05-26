@@ -5,7 +5,7 @@
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 PAPER         =
-BUILDDIR      = ../../_docs/media_player_mpy
+BUILDDIR      = ../../_docs/python-mediadecoder
 PDFBUILDDIR	  = /tmp
 PDF 		  = ../manual.pdf
 
