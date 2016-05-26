@@ -1,0 +1,909 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>API Reference &mdash; MoviePy Media Decoder 0.1.2 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="MoviePy Media Decoder 0.1.2 documentation" href="index.html"/>
+        <link rel="prev" title="Dependencies" href="dependencies.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> MoviePy Media Decoder
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="dependencies.html">Dependencies</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-play">Example player</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#main-classes">Main classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#decoder">Decoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-mediadecoder.timer">Timer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sound-renderers">Sound renderers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-mediadecoder.soundrenderers.pygamerenderer">Pygame</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-mediadecoder.soundrenderers.pyaudiorenderer">Pyaudio</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">MoviePy Media Decoder</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/api.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-play">
+<span id="example-player"></span><h2>Example player<a class="headerlink" href="#module-play" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="play.VideoPlayer">
+<em class="property">class </em><code class="descclassname">play.</code><code class="descname">VideoPlayer</code><span class="sig-paren">(</span><em>dimensions</em>, <em>fullscreen=False</em>, <em>soundrenderer='pyaudio'</em>, <em>loop=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/play.html#VideoPlayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#play.VideoPlayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is an example videoplayer that uses pygame+pyopengl to render a video.
+It uses the Decoder object to decode the video- and audiostream frame by frame.
+It shows each videoframe in a window and places the audioframes in a buffer
+(or queue) from which they are fetched by the soundrenderer object.</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#play.VideoPlayer.calc_scaled_res" title="play.VideoPlayer.calc_scaled_res"><code class="xref py py-obj docutils literal"><span class="pre">calc_scaled_res</span></code></a>(screen_res,&nbsp;image_res)</td>
+<td>Calculate appropriate texture size.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#play.VideoPlayer.load_media" title="play.VideoPlayer.load_media"><code class="xref py py-obj docutils literal"><span class="pre">load_media</span></code></a>(vidSource)</td>
+<td>Loads a video.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#play.VideoPlayer.pause" title="play.VideoPlayer.pause"><code class="xref py py-obj docutils literal"><span class="pre">pause</span></code></a>()</td>
+<td>Pauses playback.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#play.VideoPlayer.play" title="play.VideoPlayer.play"><code class="xref py py-obj docutils literal"><span class="pre">play</span></code></a>()</td>
+<td>Starts playback.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#play.VideoPlayer.stop" title="play.VideoPlayer.stop"><code class="xref py py-obj docutils literal"><span class="pre">stop</span></code></a>()</td>
+<td>Stops playback.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="play.VideoPlayer.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>dimensions</em>, <em>fullscreen=False</em>, <em>soundrenderer='pyaudio'</em>, <em>loop=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/play.html#VideoPlayer.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#play.VideoPlayer.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dimensions</strong> : tuple (width, height)</p>
+<blockquote>
+<div><p>The dimension of the window in which the video should be shown. Aspect
+ratio is maintained.</p>
+</div></blockquote>
+<p><strong>fullscreen</strong> : bool, optional</p>
+<blockquote>
+<div><p>Indicates whether the video should be displayed in fullscreen.</p>
+</div></blockquote>
+<p><strong>soundrenderer</strong> : {&#8216;pyaudio&#8217;,&#8217;pygame&#8217;}</p>
+<blockquote class="last">
+<div><p>Designates which sound backend should render the sound.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="play.VideoPlayer.calc_scaled_res">
+<code class="descname">calc_scaled_res</code><span class="sig-paren">(</span><em>screen_res</em>, <em>image_res</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/play.html#VideoPlayer.calc_scaled_res"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#play.VideoPlayer.calc_scaled_res" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate appropriate texture size.</p>
+<p>Calculate size or required texture so that it will fill the window, 
+but retains the movies original aspect ratio.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>screen_res</strong> : tuple</p>
+<blockquote>
+<div><p>Display window size/Resolution</p>
+</div></blockquote>
+<p><strong>image_res</strong> : tuple</p>
+<blockquote>
+<div><p>Image width and height</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">tuple</p>
+<blockquote class="last">
+<div><p>width and height of image scaled to window/screen</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="play.VideoPlayer.load_media">
+<code class="descname">load_media</code><span class="sig-paren">(</span><em>vidSource</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/play.html#VideoPlayer.load_media"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#play.VideoPlayer.load_media" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a video.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>vidSource</strong> : str</p>
+<blockquote class="last">
+<div><p>The path to the video file</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="play.VideoPlayer.pause">
+<code class="descname">pause</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/play.html#VideoPlayer.pause"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#play.VideoPlayer.pause" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pauses playback.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="play.VideoPlayer.play">
+<code class="descname">play</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/play.html#VideoPlayer.play"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#play.VideoPlayer.play" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts playback.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="play.VideoPlayer.stop">
+<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/play.html#VideoPlayer.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#play.VideoPlayer.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stops playback.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="main-classes">
+<h2>Main classes<a class="headerlink" href="#main-classes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="decoder">
+<h3>Decoder<a class="headerlink" href="#decoder" title="Permalink to this headline">¶</a></h3>
+<p>This is the main class that retrieves video and audio frames from MoviePy/ffmpeg.
+You can supply Decoder with callback functions that handle stream data once it
+is available.</p>
+<span class="target" id="module-mediadecoder.decoder"></span><dl class="class">
+<dt id="mediadecoder.decoder.Decoder">
+<em class="property">class </em><code class="descclassname">mediadecoder.decoder.</code><code class="descname">Decoder</code><span class="sig-paren">(</span><em>mediafile=None</em>, <em>videorenderfunc=None</em>, <em>play_audio=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/decoder.html#Decoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.decoder.Decoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class loads a video file that can be played. It can 
+be passed a callback function to which decoded video frames should be passed.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#mediadecoder.decoder.Decoder.current_frame_no" title="mediadecoder.decoder.Decoder.current_frame_no"><code class="xref py py-obj docutils literal"><span class="pre">current_frame_no</span></code></a></td>
+<td>Current frame_no of video.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#mediadecoder.decoder.Decoder.current_playtime" title="mediadecoder.decoder.Decoder.current_playtime"><code class="xref py py-obj docutils literal"><span class="pre">current_playtime</span></code></a></td>
+<td>Clocks current runtime in seconds.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#mediadecoder.decoder.Decoder.current_videoframe" title="mediadecoder.decoder.Decoder.current_videoframe"><code class="xref py py-obj docutils literal"><span class="pre">current_videoframe</span></code></a></td>
+<td>Representation of current video frame as a numpy array.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#mediadecoder.decoder.Decoder.frame_interval" title="mediadecoder.decoder.Decoder.frame_interval"><code class="xref py py-obj docutils literal"><span class="pre">frame_interval</span></code></a></td>
+<td>Duration in seconds of a single frame.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#mediadecoder.decoder.Decoder.loop" title="mediadecoder.decoder.Decoder.loop"><code class="xref py py-obj docutils literal"><span class="pre">loop</span></code></a></td>
+<td>Indicates whether the playback should loop.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#mediadecoder.decoder.Decoder.load_media" title="mediadecoder.decoder.Decoder.load_media"><code class="xref py py-obj docutils literal"><span class="pre">load_media</span></code></a>(mediafile[,&nbsp;play_audio])</td>
+<td>Loads a media file to decode.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#mediadecoder.decoder.Decoder.pause" title="mediadecoder.decoder.Decoder.pause"><code class="xref py py-obj docutils literal"><span class="pre">pause</span></code></a>()</td>
+<td>Pauses or resumes the video and/or audio stream.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#mediadecoder.decoder.Decoder.play" title="mediadecoder.decoder.Decoder.play"><code class="xref py py-obj docutils literal"><span class="pre">play</span></code></a>()</td>
+<td>Start the playback of the video.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#mediadecoder.decoder.Decoder.reset" title="mediadecoder.decoder.Decoder.reset"><code class="xref py py-obj docutils literal"><span class="pre">reset</span></code></a>()</td>
+<td>Resets the player and discards loaded data.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#mediadecoder.decoder.Decoder.rewind" title="mediadecoder.decoder.Decoder.rewind"><code class="xref py py-obj docutils literal"><span class="pre">rewind</span></code></a>()</td>
+<td>Rewinds the video to the beginning.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#mediadecoder.decoder.Decoder.seek" title="mediadecoder.decoder.Decoder.seek"><code class="xref py py-obj docutils literal"><span class="pre">seek</span></code></a>(value)</td>
+<td>Seek to the specified time.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#mediadecoder.decoder.Decoder.set_audiorenderer" title="mediadecoder.decoder.Decoder.set_audiorenderer"><code class="xref py py-obj docutils literal"><span class="pre">set_audiorenderer</span></code></a>(renderer)</td>
+<td>Sets the SoundRenderer object.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#mediadecoder.decoder.Decoder.set_videoframerender_callback" title="mediadecoder.decoder.Decoder.set_videoframerender_callback"><code class="xref py py-obj docutils literal"><span class="pre">set_videoframerender_callback</span></code></a>(func)</td>
+<td>Sets the function to call when a new frame is available.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#mediadecoder.decoder.Decoder.stop" title="mediadecoder.decoder.Decoder.stop"><code class="xref py py-obj docutils literal"><span class="pre">stop</span></code></a>()</td>
+<td>Stops the video stream and resets the clock.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="mediadecoder.decoder.Decoder.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>mediafile=None</em>, <em>videorenderfunc=None</em>, <em>play_audio=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/decoder.html#Decoder.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.decoder.Decoder.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>mediafile</strong> : str, optional</p>
+<blockquote>
+<div><p>The path to the mediafile to be loaded (default: None)</p>
+</div></blockquote>
+<p><strong>videorenderfunc</strong> : callable (default: None)</p>
+<blockquote>
+<div><p>Callback function that takes care of the actual
+Rendering of the videoframe.                    The specified renderfunc should be able to accept the following
+arguments:</p>
+<blockquote>
+<div><ul class="simple">
+<li>frame (numpy.ndarray): the videoframe to be rendered</li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+<p><strong>play_audio</strong> : bool, optional</p>
+<blockquote class="last">
+<div><p>Whether audio of the clip should be played.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediadecoder.decoder.Decoder.current_frame_no">
+<code class="descname">current_frame_no</code><a class="headerlink" href="#mediadecoder.decoder.Decoder.current_frame_no" title="Permalink to this definition">¶</a></dt>
+<dd><p>Current frame_no of video.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediadecoder.decoder.Decoder.current_playtime">
+<code class="descname">current_playtime</code><a class="headerlink" href="#mediadecoder.decoder.Decoder.current_playtime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clocks current runtime in seconds.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediadecoder.decoder.Decoder.current_videoframe">
+<code class="descname">current_videoframe</code><a class="headerlink" href="#mediadecoder.decoder.Decoder.current_videoframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Representation of current video frame as a numpy array.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediadecoder.decoder.Decoder.frame_interval">
+<code class="descname">frame_interval</code><a class="headerlink" href="#mediadecoder.decoder.Decoder.frame_interval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Duration in seconds of a single frame.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediadecoder.decoder.Decoder.load_media">
+<code class="descname">load_media</code><span class="sig-paren">(</span><em>mediafile</em>, <em>play_audio=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/decoder.html#Decoder.load_media"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.decoder.Decoder.load_media" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a media file to decode.</p>
+<p>If an audiostream is detected, its parameters will be stored in a
+dictionary in the variable <cite>audioformat</cite>. This contains the fields</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Nbytes:</th><td class="field-body">the number of bytes in the stream (2 is 16-bit sound).</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Nchannels:</th><td class="field-body">the channels (2 for stereo, 1 for mono)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Fps:</th><td class="field-body">the frames per sec/sampling rate of the sound (e.g. 44100 KhZ).</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Buffersize:</th><td class="field-body">the audioframes per buffer.</td>
+</tr>
+</tbody>
+</table>
+<p>If play_audio was set to False, or the video does not have an audiotrack,
+<cite>audioformat</cite> will be None.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>mediafile</strong> : str</p>
+<blockquote>
+<div><p>The path to the media file to load.</p>
+</div></blockquote>
+<p><strong>play_audio</strong> : bool, optional</p>
+<blockquote>
+<div><p>Indicates whether the audio of a movie should be played.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>IOError</strong></p>
+<blockquote class="last">
+<div><p>When the file could not be found or loaded.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediadecoder.decoder.Decoder.loop">
+<code class="descname">loop</code><a class="headerlink" href="#mediadecoder.decoder.Decoder.loop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates whether the playback should loop.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediadecoder.decoder.Decoder.pause">
+<code class="descname">pause</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/decoder.html#Decoder.pause"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.decoder.Decoder.pause" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pauses or resumes the video and/or audio stream.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediadecoder.decoder.Decoder.play">
+<code class="descname">play</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/decoder.html#Decoder.play"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.decoder.Decoder.play" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the playback of the video. 
+The playback loop is run in a separate thread, so this function returns 
+immediately. This allows one to implement things such as event handling 
+loops (e.g. check for key presses) elsewhere.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediadecoder.decoder.Decoder.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/decoder.html#Decoder.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.decoder.Decoder.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets the player and discards loaded data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediadecoder.decoder.Decoder.rewind">
+<code class="descname">rewind</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/decoder.html#Decoder.rewind"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.decoder.Decoder.rewind" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rewinds the video to the beginning.
+Convenience function simply calling seek(0).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediadecoder.decoder.Decoder.seek">
+<code class="descname">seek</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/decoder.html#Decoder.seek"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.decoder.Decoder.seek" title="Permalink to this definition">¶</a></dt>
+<dd><p>Seek to the specified time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>value</strong> : str or int</p>
+<blockquote class="last">
+<div><blockquote>
+<div><p>The time to seek to. Can be any of the following formats:</p>
+</div></blockquote>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="mf">15.4</span> <span class="o">-&gt;</span> <span class="mf">15.4</span> <span class="c1"># seconds</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mf">21.5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="mf">81.5</span> <span class="c1"># (min,sec)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="mi">3662</span> <span class="c1"># (hr, min, sec)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;01:01:33.5&#39;</span> <span class="o">-&gt;</span> <span class="mf">3693.5</span>  <span class="c1">#(hr,min,sec)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;01:01:33.045&#39;</span> <span class="o">-&gt;</span> <span class="mf">3693.045</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;01:01:33,5&#39;</span> <span class="c1">#comma works too</span>
+</pre></div>
+</div>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediadecoder.decoder.Decoder.set_audiorenderer">
+<code class="descname">set_audiorenderer</code><span class="sig-paren">(</span><em>renderer</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/decoder.html#Decoder.set_audiorenderer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.decoder.Decoder.set_audiorenderer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the SoundRenderer object. This should take care of processing 
+the audioframes set in audioqueue.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>renderer</strong> : sound_renderers.SoundRenderer</p>
+<blockquote>
+<div><p>A subclass of sound_renderers.SoundRenderer that takes care of the
+audio rendering.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>RuntimeError</strong></p>
+<blockquote class="last">
+<div><p>If no information about the audiostream is available. This could be
+because no video has been loaded yet, or because no embedded 
+audiostream could be detected in the video, or play_sound was set
+to False.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediadecoder.decoder.Decoder.set_videoframerender_callback">
+<code class="descname">set_videoframerender_callback</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/decoder.html#Decoder.set_videoframerender_callback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.decoder.Decoder.set_videoframerender_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the function to call when a new frame is available. 
+This function is passed the frame (in the form of a numpy.ndarray) and
+should take care of the rendering.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>func</strong> : callable</p>
+<blockquote class="last">
+<div><p>The function to pass the new frame to once it becomes available.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediadecoder.decoder.Decoder.stop">
+<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/decoder.html#Decoder.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.decoder.Decoder.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stops the video stream and resets the clock.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-mediadecoder.timer">
+<span id="timer"></span><h3>Timer<a class="headerlink" href="#module-mediadecoder.timer" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="mediadecoder.timer.Timer">
+<em class="property">class </em><code class="descclassname">mediadecoder.timer.</code><code class="descname">Timer</code><span class="sig-paren">(</span><em>fps=None</em>, <em>max_duration=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/timer.html#Timer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.timer.Timer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Timer serves as a video clock that can be used which frame needs to be
+displayed at an arbitrary moment in time. It runs in a separate thread. 
+Time can be polled by checking its property clock.time, and the current frame
+can be determined using clock.current_frame.</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#mediadecoder.timer.Timer.current_frame" title="mediadecoder.timer.Timer.current_frame"><code class="xref py py-obj docutils literal"><span class="pre">current_frame</span></code></a></td>
+<td>The current frame number that should be displayed.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#mediadecoder.timer.Timer.fps" title="mediadecoder.timer.Timer.fps"><code class="xref py py-obj docutils literal"><span class="pre">fps</span></code></a></td>
+<td>Returns the frames per second indication that is currently set.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#mediadecoder.timer.Timer.frame_interval" title="mediadecoder.timer.Timer.frame_interval"><code class="xref py py-obj docutils literal"><span class="pre">frame_interval</span></code></a></td>
+<td>The duration of a single frame in seconds.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#mediadecoder.timer.Timer.max_duration" title="mediadecoder.timer.Timer.max_duration"><code class="xref py py-obj docutils literal"><span class="pre">max_duration</span></code></a></td>
+<td>Returns the max duration the clock should run for.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#mediadecoder.timer.Timer.time" title="mediadecoder.timer.Timer.time"><code class="xref py py-obj docutils literal"><span class="pre">time</span></code></a></td>
+<td>The current time of the clock.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#mediadecoder.timer.Timer.pause" title="mediadecoder.timer.Timer.pause"><code class="xref py py-obj docutils literal"><span class="pre">pause</span></code></a>()</td>
+<td>Pauses the clock to continue running later.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#mediadecoder.timer.Timer.reset" title="mediadecoder.timer.Timer.reset"><code class="xref py py-obj docutils literal"><span class="pre">reset</span></code></a>()</td>
+<td>Reset the clock to 0.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#mediadecoder.timer.Timer.start" title="mediadecoder.timer.Timer.start"><code class="xref py py-obj docutils literal"><span class="pre">start</span></code></a>()</td>
+<td>Starts the clock from 0.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#mediadecoder.timer.Timer.stop" title="mediadecoder.timer.Timer.stop"><code class="xref py py-obj docutils literal"><span class="pre">stop</span></code></a>()</td>
+<td>Stops the clock and resets the internal timers.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="mediadecoder.timer.Timer.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>fps=None</em>, <em>max_duration=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/timer.html#Timer.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.timer.Timer.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fps</strong> : float, optional</p>
+<blockquote>
+<div><p>The frames per second of the video for which this timer is created.</p>
+</div></blockquote>
+<p><strong>max_duration</strong> : float, optional</p>
+<blockquote class="last">
+<div><p>The maximum time in seconds the timer should run for.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediadecoder.timer.Timer.current_frame">
+<code class="descname">current_frame</code><a class="headerlink" href="#mediadecoder.timer.Timer.current_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current frame number that should be displayed.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediadecoder.timer.Timer.fps">
+<code class="descname">fps</code><a class="headerlink" href="#mediadecoder.timer.Timer.fps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the frames per second indication that is currently set.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediadecoder.timer.Timer.frame_interval">
+<code class="descname">frame_interval</code><a class="headerlink" href="#mediadecoder.timer.Timer.frame_interval" title="Permalink to this definition">¶</a></dt>
+<dd><p>The duration of a single frame in seconds.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediadecoder.timer.Timer.max_duration">
+<code class="descname">max_duration</code><a class="headerlink" href="#mediadecoder.timer.Timer.max_duration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the max duration the clock should run for. 
+(Usually the duration of the videoclip)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediadecoder.timer.Timer.pause">
+<code class="descname">pause</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/timer.html#Timer.pause"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.timer.Timer.pause" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pauses the clock to continue running later.
+Saves the duration of the current interval in the previous_intervals 
+list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediadecoder.timer.Timer.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/timer.html#Timer.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.timer.Timer.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the clock to 0.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediadecoder.timer.Timer.start">
+<code class="descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/timer.html#Timer.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.timer.Timer.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts the clock from 0. 
+Uses a separate thread to handle the timing functionalities.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediadecoder.timer.Timer.stop">
+<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/timer.html#Timer.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.timer.Timer.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stops the clock and resets the internal timers.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mediadecoder.timer.Timer.time">
+<code class="descname">time</code><a class="headerlink" href="#mediadecoder.timer.Timer.time" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current time of the clock.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sound-renderers">
+<h3>Sound renderers<a class="headerlink" href="#sound-renderers" title="Permalink to this headline">¶</a></h3>
+<p>This module contains objects that handle the audio frames supplied by Decoder.
+At the moment, the only one that is stable is the PyAudioSoundRenderer.</p>
+<div class="section" id="module-mediadecoder.soundrenderers.pygamerenderer">
+<span id="pygame"></span><h4>Pygame<a class="headerlink" href="#module-mediadecoder.soundrenderers.pygamerenderer" title="Permalink to this headline">¶</a></h4>
+<dl class="class">
+<dt id="mediadecoder.soundrenderers.pygamerenderer.SoundrendererPygame">
+<em class="property">class </em><code class="descclassname">mediadecoder.soundrenderers.pygamerenderer.</code><code class="descname">SoundrendererPygame</code><span class="sig-paren">(</span><em>audioformat</em>, <em>queue=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/soundrenderers/pygamerenderer.html#SoundrendererPygame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.soundrenderers.pygamerenderer.SoundrendererPygame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses pygame.mixer to play sound</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#mediadecoder.soundrenderers.pygamerenderer.SoundrendererPygame.close_stream" title="mediadecoder.soundrenderers.pygamerenderer.SoundrendererPygame.close_stream"><code class="xref py py-obj docutils literal"><span class="pre">close_stream</span></code></a>()</td>
+<td>Cleanup (done by pygame.quit() in main loop)</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#mediadecoder.soundrenderers.pygamerenderer.SoundrendererPygame.run" title="mediadecoder.soundrenderers.pygamerenderer.SoundrendererPygame.run"><code class="xref py py-obj docutils literal"><span class="pre">run</span></code></a>()</td>
+<td>Main thread function.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="mediadecoder.soundrenderers.pygamerenderer.SoundrendererPygame.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>audioformat</em>, <em>queue=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/soundrenderers/pygamerenderer.html#SoundrendererPygame.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.soundrenderers.pygamerenderer.SoundrendererPygame.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.
+Creates a pygame sound renderer using pygame.mixer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>audioformat</strong> : dict</p>
+<blockquote>
+<div><p>A dictionary containing the properties of the audiostream</p>
+</div></blockquote>
+<p><strong>queue</strong> : Queue.queue</p>
+<blockquote class="last">
+<div><p>A queue object which serves as a buffer on which the individual
+audio frames are placed by the decoder.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediadecoder.soundrenderers.pygamerenderer.SoundrendererPygame.close_stream">
+<code class="descname">close_stream</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/soundrenderers/pygamerenderer.html#SoundrendererPygame.close_stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.soundrenderers.pygamerenderer.SoundrendererPygame.close_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cleanup (done by pygame.quit() in main loop)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediadecoder.soundrenderers.pygamerenderer.SoundrendererPygame.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/soundrenderers/pygamerenderer.html#SoundrendererPygame.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.soundrenderers.pygamerenderer.SoundrendererPygame.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main thread function.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-mediadecoder.soundrenderers.pyaudiorenderer">
+<span id="pyaudio"></span><h4>Pyaudio<a class="headerlink" href="#module-mediadecoder.soundrenderers.pyaudiorenderer" title="Permalink to this headline">¶</a></h4>
+<dl class="class">
+<dt id="mediadecoder.soundrenderers.pyaudiorenderer.SoundrendererPyAudio">
+<em class="property">class </em><code class="descclassname">mediadecoder.soundrenderers.pyaudiorenderer.</code><code class="descname">SoundrendererPyAudio</code><span class="sig-paren">(</span><em>audioformat</em>, <em>queue=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/soundrenderers/pyaudiorenderer.html#SoundrendererPyAudio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.soundrenderers.pyaudiorenderer.SoundrendererPyAudio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses pyaudio to play sound</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#mediadecoder.soundrenderers.pyaudiorenderer.SoundrendererPyAudio.close_stream" title="mediadecoder.soundrenderers.pyaudiorenderer.SoundrendererPyAudio.close_stream"><code class="xref py py-obj docutils literal"><span class="pre">close_stream</span></code></a>()</td>
+<td>Closes the stream.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#mediadecoder.soundrenderers.pyaudiorenderer.SoundrendererPyAudio.get_frame" title="mediadecoder.soundrenderers.pyaudiorenderer.SoundrendererPyAudio.get_frame"><code class="xref py py-obj docutils literal"><span class="pre">get_frame</span></code></a>(in_data,&nbsp;frame_count,&nbsp;time_info,&nbsp;...)</td>
+<td>Callback function for the pyaudio stream.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#mediadecoder.soundrenderers.pyaudiorenderer.SoundrendererPyAudio.start" title="mediadecoder.soundrenderers.pyaudiorenderer.SoundrendererPyAudio.start"><code class="xref py py-obj docutils literal"><span class="pre">start</span></code></a>()</td>
+<td>Initializes the stream.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="mediadecoder.soundrenderers.pyaudiorenderer.SoundrendererPyAudio.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>audioformat</em>, <em>queue=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/soundrenderers/pyaudiorenderer.html#SoundrendererPyAudio.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.soundrenderers.pyaudiorenderer.SoundrendererPyAudio.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.
+Creates a pyaudio sound renderer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>audioformat</strong> : dict</p>
+<blockquote>
+<div><p>A dictionary containing the properties of the audiostream</p>
+</div></blockquote>
+<p><strong>queue</strong> : Queue.queue</p>
+<blockquote class="last">
+<div><p>A queue object which serves as a buffer on which the individual
+audio frames are placed by the decoder.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediadecoder.soundrenderers.pyaudiorenderer.SoundrendererPyAudio.close_stream">
+<code class="descname">close_stream</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/soundrenderers/pyaudiorenderer.html#SoundrendererPyAudio.close_stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.soundrenderers.pyaudiorenderer.SoundrendererPyAudio.close_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes the stream. Performs cleanup.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediadecoder.soundrenderers.pyaudiorenderer.SoundrendererPyAudio.get_frame">
+<code class="descname">get_frame</code><span class="sig-paren">(</span><em>in_data</em>, <em>frame_count</em>, <em>time_info</em>, <em>status</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/soundrenderers/pyaudiorenderer.html#SoundrendererPyAudio.get_frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.soundrenderers.pyaudiorenderer.SoundrendererPyAudio.get_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback function for the pyaudio stream. Don&#8217;t use directly.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediadecoder.soundrenderers.pyaudiorenderer.SoundrendererPyAudio.start">
+<code class="descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/soundrenderers/pyaudiorenderer.html#SoundrendererPyAudio.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.soundrenderers.pyaudiorenderer.SoundrendererPyAudio.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the stream.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="dependencies.html" class="btn btn-neutral" title="Dependencies" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Daniel Schreij.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Media decoder documentation &mdash; MoviePy Media Decoder 0.1.2 documentation</title>
+  <title>Dependencies &mdash; MoviePy Media Decoder 0.1.2 documentation</title>
   
 
   
@@ -30,8 +30,9 @@
   
 
   
-    <link rel="top" title="MoviePy Media Decoder 0.1.2 documentation" href="#"/>
-        <link rel="next" title="Dependencies" href="dependencies.html"/> 
+    <link rel="top" title="MoviePy Media Decoder 0.1.2 documentation" href="index.html"/>
+        <link rel="next" title="API Reference" href="api.html"/>
+        <link rel="prev" title="Media decoder documentation" href="index.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -49,7 +50,7 @@
           
 
           
-            <a href="#" class="icon icon-home"> MoviePy Media Decoder
+            <a href="index.html" class="icon icon-home"> MoviePy Media Decoder
           
 
           
@@ -80,8 +81,8 @@
           
             
             
-                <ul>
-<li class="toctree-l1"><a class="reference internal" href="dependencies.html">Dependencies</a></li>
+                <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
 </ul>
 
@@ -96,7 +97,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="#">MoviePy Media Decoder</a>
+        <a href="index.html">MoviePy Media Decoder</a>
       </nav>
 
 
@@ -111,13 +112,13 @@
 
 <div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="#">Docs</a> &raquo;</li>
+    <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>Media decoder documentation</li>
+    <li>Dependencies</li>
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="_sources/index.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/dependencies.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -127,34 +128,19 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="media-decoder-documentation">
-<h1>Media decoder documentation<a class="headerlink" href="#media-decoder-documentation" title="Permalink to this headline">¶</a></h1>
-<p>This library allows you to decode and render movies in Python. It is based on
-the (rather excellent) <a class="reference external" href="http://zulko.github.io/moviepy/">MoviePy</a> module created by Zulko, which offers a convenient
-Python interface to ffmpeg. This library should hence be able to render any media
-format that ffmpeg supports. If ffmpeg is not found, moviepy will download it for
-you on first usage, which may take some time
-(so keep an eye on that terminal/command prompt to track the download progress).</p>
-<p>This library&#8217;s main purpose is to decode video and/or audio files and supply the
-user with video and audio frames depending on the playtime of the media stream.
-The user thus has to take care of the rendering of these frames himself (although
-modules for sound rendering are included in the package.
-The <code class="docutils literal"><span class="pre">play.py</span></code> contains an example of how to play a video using OpenGL+pygame for
-the video rendering and pyaudio for audio playback (using pygame.mixer is also an
-option, but that doesn&#8217;t work smoothly yet). You can play a video by calling
-<code class="docutils literal"><span class="pre">python</span> <span class="pre">play.py</span> <span class="pre">&lt;path_to_videofile&gt;</span></code> from the command line or
-<code class="docutils literal"><span class="pre">python</span> <span class="pre">play.py</span> <span class="pre">-h</span></code> to view all command line options.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="dependencies.html">Dependencies</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.html#module-play">Example player</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#main-classes">Main classes</a></li>
+  <div class="section" id="dependencies">
+<span id="dependencies"></span><h1>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h1>
+<p>This module depends on the following other libraries.</p>
+<ul class="simple">
+<li>MoviePy (http://zulko.github.io/moviepy/)</li>
+<li>pyaudio (https://people.csail.mit.edu/hubert/pyaudio/)</li>
+<li>numpy (http://www.numpy.org/)</li>
 </ul>
-</li>
+<p>That should be enough to get you started when you plan to implement your own rendering functions to display the video frames. If you also want to be able to view the example provided by <code class="docutils literal"><span class="pre">play.py</span></code> you furthermore need</p>
+<ul class="simple">
+<li>pygame (http://www.pygame.org/)</li>
+<li>pyOpenGL (http://pyopengl.sourceforge.net/)</li>
 </ul>
-</div>
-<p>View on <a class="reference external" href="https://github.com/dschreij/media_player_mpy">Github</a></p>
 </div>
 
 
@@ -164,8 +150,10 @@ option, but that doesn&#8217;t work smoothly yet). You can play a video by calli
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="dependencies.html" class="btn btn-neutral float-right" title="Dependencies" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="api.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
+      
+        <a href="index.html" class="btn btn-neutral" title="Media decoder documentation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

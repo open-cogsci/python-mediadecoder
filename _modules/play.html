@@ -1,0 +1,502 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>play &mdash; MoviePy Media Decoder 0.1.2 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="MoviePy Media Decoder 0.1.2 documentation" href="../index.html"/>
+        <link rel="up" title="Module code" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> MoviePy Media Decoder
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">MoviePy Media Decoder</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      
+    <li>play</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for play</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">pygame</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">OpenGL.GL</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">mediadecoder</span> <span class="c1"># For the state constants</span>
+<span class="kn">from</span> <span class="nn">mediadecoder.decoder</span> <span class="kn">import</span> <span class="n">Decoder</span> 
+<span class="kn">from</span> <span class="nn">mediadecoder.soundrenderers</span> <span class="kn">import</span> <span class="o">*</span>
+
+<div class="viewcode-block" id="VideoPlayer"><a class="viewcode-back" href="../api.html#play.VideoPlayer">[docs]</a><span class="k">class</span> <span class="nc">VideoPlayer</span><span class="p">():</span>
+	<span class="sd">&quot;&quot;&quot; This is an example videoplayer that uses pygame+pyopengl to render a video.</span>
+<span class="sd">	It uses the Decoder object to decode the video- and audiostream frame by frame.</span>
+<span class="sd">	It shows each videoframe in a window and places the audioframes in a buffer</span>
+<span class="sd">	(or queue) from which they are fetched by the soundrenderer object.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="VideoPlayer.__init__"><a class="viewcode-back" href="../api.html#play.VideoPlayer.__init__">[docs]</a>	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">,</span> <span class="n">fullscreen</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">soundrenderer</span><span class="o">=</span><span class="s2">&quot;pyaudio&quot;</span><span class="p">,</span>
+		<span class="n">loop</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Constructor.</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		dimensions : tuple (width, height)</span>
+<span class="sd">			The dimension of the window in which the video should be shown. Aspect</span>
+<span class="sd">			ratio is maintained.</span>
+<span class="sd">		fullscreen : bool, optional</span>
+<span class="sd">			Indicates whether the video should be displayed in fullscreen.</span>
+<span class="sd">		soundrenderer : {&#39;pyaudio&#39;,&#39;pygame&#39;}</span>
+<span class="sd">			Designates which sound backend should render the sound.	</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="n">pygame</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+		<span class="p">(</span><span class="n">windowWidth</span><span class="p">,</span> <span class="n">windowHeight</span><span class="p">)</span> <span class="o">=</span> <span class="n">dimensions</span>
+		<span class="n">flags</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">DOUBLEBUF</span><span class="o">|</span><span class="n">pygame</span><span class="o">.</span><span class="n">OPENGL</span><span class="o">|</span><span class="n">pygame</span><span class="o">.</span><span class="n">HWSURFACE</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">fullscreen</span> <span class="o">=</span> <span class="n">fullscreen</span>
+		<span class="k">if</span> <span class="n">fullscreen</span><span class="p">:</span>
+			<span class="n">flags</span> <span class="o">=</span> <span class="n">flags</span> <span class="o">|</span> <span class="n">pygame</span><span class="o">.</span><span class="n">FULLSCREEN</span>
+		<span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_mode</span><span class="p">((</span><span class="n">windowWidth</span><span class="p">,</span><span class="n">windowHeight</span><span class="p">),</span> <span class="n">flags</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">windowSize</span> <span class="o">=</span> <span class="p">(</span><span class="n">windowWidth</span><span class="p">,</span> <span class="n">windowHeight</span><span class="p">)</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">soundrenderer</span><span class="o">=</span><span class="n">soundrenderer</span>		
+		<span class="bp">self</span><span class="o">.</span><span class="n">loop</span> <span class="o">=</span> <span class="n">loop</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">texUpdated</span> <span class="o">=</span> <span class="bp">False</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">__initGL</span><span class="p">()</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">decoder</span> <span class="o">=</span> <span class="n">Decoder</span><span class="p">(</span>
+			<span class="n">videorenderfunc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__texUpdate</span><span class="p">,</span>
+		<span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">texture_locked</span> <span class="o">=</span> <span class="bp">False</span></div>
+
+
+	<span class="k">def</span> <span class="nf">__initGL</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">glViewport</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">windowSize</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">windowSize</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+		<span class="n">glPushAttrib</span><span class="p">(</span><span class="n">GL_ENABLE_BIT</span><span class="p">)</span>
+		<span class="n">glDisable</span><span class="p">(</span><span class="n">GL_DEPTH_TEST</span><span class="p">)</span>
+		<span class="n">glDisable</span><span class="p">(</span><span class="n">GL_CULL_FACE</span><span class="p">)</span>
+
+		<span class="n">glDepthFunc</span><span class="p">(</span><span class="n">GL_ALWAYS</span><span class="p">)</span>
+		<span class="n">glEnable</span><span class="p">(</span><span class="n">GL_BLEND</span><span class="p">)</span>
+		<span class="n">glBlendFunc</span><span class="p">(</span><span class="n">GL_SRC_ALPHA</span><span class="p">,</span> <span class="n">GL_ONE_MINUS_SRC_ALPHA</span><span class="p">)</span>
+
+		<span class="n">glMatrixMode</span><span class="p">(</span><span class="n">GL_PROJECTION</span><span class="p">)</span>
+		<span class="n">glPushMatrix</span><span class="p">()</span>
+		<span class="n">glLoadIdentity</span><span class="p">()</span>
+		<span class="n">glOrtho</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span>  <span class="bp">self</span><span class="o">.</span><span class="n">windowSize</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>  <span class="bp">self</span><span class="o">.</span><span class="n">windowSize</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+		<span class="n">glMatrixMode</span><span class="p">(</span><span class="n">GL_MODELVIEW</span><span class="p">)</span>
+		<span class="n">glPushMatrix</span><span class="p">()</span>
+
+		<span class="n">glColor4f</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+		<span class="n">glClearColor</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+		<span class="n">glClearDepth</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+
+<div class="viewcode-block" id="VideoPlayer.calc_scaled_res"><a class="viewcode-back" href="../api.html#play.VideoPlayer.calc_scaled_res">[docs]</a>	<span class="k">def</span> <span class="nf">calc_scaled_res</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">screen_res</span><span class="p">,</span> <span class="n">image_res</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Calculate appropriate texture size.</span>
+
+<span class="sd">		Calculate size or required texture so that it will fill the window, </span>
+<span class="sd">		but retains the movies original aspect ratio.</span>
+<span class="sd">		</span>
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		screen_res : tuple</span>
+<span class="sd">			Display window size/Resolution</span>
+<span class="sd">		image_res : tuple</span>
+<span class="sd">		    Image width and height</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		tuple </span>
+<span class="sd">			width and height of image scaled to window/screen</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">rs</span> <span class="o">=</span> <span class="n">screen_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">screen_res</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+		<span class="n">ri</span> <span class="o">=</span> <span class="n">image_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">image_res</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+		<span class="k">if</span> <span class="n">rs</span> <span class="o">&gt;</span> <span class="n">ri</span><span class="p">:</span>
+			<span class="k">return</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">image_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">screen_res</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">image_res</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">screen_res</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">return</span> <span class="p">(</span><span class="n">screen_res</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">image_res</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">screen_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">image_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="VideoPlayer.load_media"><a class="viewcode-back" href="../api.html#play.VideoPlayer.load_media">[docs]</a>	<span class="k">def</span> <span class="nf">load_media</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vidSource</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Loads a video.</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		vidSource : str</span>
+<span class="sd">			The path to the video file</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">vidSource</span><span class="p">):</span>
+			<span class="k">print</span><span class="p">(</span><span class="s2">&quot;File not found: &quot;</span> <span class="o">+</span> <span class="n">vidSource</span><span class="p">)</span>
+			<span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+			<span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+			<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">load_media</span><span class="p">(</span><span class="n">vidSource</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">loop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop</span>
+		<span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_caption</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">vidSource</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">vidsize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">clip</span><span class="o">.</span><span class="n">size</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">destsize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_scaled_res</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">windowSize</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vidsize</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">vidPos</span> <span class="o">=</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">windowSize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">destsize</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">windowSize</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">destsize</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">__textureSetup</span><span class="p">()</span>
+
+		<span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">audioformat</span><span class="p">):</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">soundrenderer</span> <span class="o">==</span> <span class="s2">&quot;pygame&quot;</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">audio</span> <span class="o">=</span> <span class="n">SoundrendererPygame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">audioformat</span><span class="p">)</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">soundrenderer</span> <span class="o">==</span> <span class="s2">&quot;pyaudio&quot;</span><span class="p">:</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">audio</span> <span class="o">=</span> <span class="n">SoundrendererPyAudio</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">audioformat</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">set_audiorenderer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">audio</span><span class="p">)</span></div>
+
+	<span class="k">def</span> <span class="nf">__textureSetup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="c1"># Setup texture in OpenGL to render video to</span>
+		<span class="n">glEnable</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">)</span>
+		<span class="n">glMatrixMode</span><span class="p">(</span><span class="n">GL_MODELVIEW</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">textureNo</span> <span class="o">=</span> <span class="n">glGenTextures</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+		<span class="n">glBindTexture</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">textureNo</span><span class="p">)</span>
+		<span class="n">glTexParameterf</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_MAG_FILTER</span><span class="p">,</span> <span class="n">GL_LINEAR</span><span class="p">)</span>
+		<span class="n">glTexParameterf</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_MIN_FILTER</span><span class="p">,</span> <span class="n">GL_NEAREST</span><span class="p">)</span>
+
+		<span class="c1"># Fill texture with black to begin with.</span>
+		<span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">vidsize</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">vidsize</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">3</span><span class="p">],</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+		<span class="n">img</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+		<span class="n">glTexImage2D</span><span class="p">(</span> <span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_RGB</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vidsize</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">vidsize</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_RGB</span><span class="p">,</span> <span class="n">GL_UNSIGNED_BYTE</span><span class="p">,</span> <span class="n">img</span><span class="p">)</span>
+
+		<span class="c1"># Create display list which draws to the quad to which the texture is rendered</span>
+		<span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vidPos</span>
+		<span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="n">h</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">destsize</span>
+
+		<span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+		<span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">w</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">frameQuad</span> <span class="o">=</span> <span class="n">glGenLists</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+		<span class="n">glNewList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frameQuad</span><span class="p">,</span> <span class="n">GL_COMPILE</span><span class="p">)</span>
+		<span class="n">glBegin</span><span class="p">(</span><span class="n">GL_QUADS</span><span class="p">)</span>
+		<span class="n">glTexCoord2f</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+		<span class="n">glVertex3i</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+		<span class="n">glTexCoord2f</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+		<span class="n">glVertex3i</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">w</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+		<span class="n">glTexCoord2f</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+		<span class="n">glVertex3i</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">w</span><span class="p">,</span> <span class="n">y</span><span class="o">+</span><span class="n">h</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+		<span class="n">glTexCoord2f</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+		<span class="n">glVertex3i</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">+</span><span class="n">h</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+		<span class="n">glEnd</span><span class="p">()</span>
+		<span class="n">glEndList</span><span class="p">()</span>
+
+		<span class="c1"># Clear The Screen And The Depth Buffer</span>
+		<span class="n">glClear</span><span class="p">(</span><span class="n">GL_COLOR_BUFFER_BIT</span> <span class="o">|</span> <span class="n">GL_DEPTH_BUFFER_BIT</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">__texUpdate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Update the texture with the newly supplied frame. &quot;&quot;&quot;</span>
+		<span class="c1"># Retrieve buffer from videosink</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">texture_locked</span><span class="p">:</span>
+			<span class="k">return</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="n">frame</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">texUpdated</span> <span class="o">=</span> <span class="bp">True</span>
+
+	<span class="k">def</span> <span class="nf">__drawFrame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Draws a single frame. &quot;&quot;&quot;</span>
+		<span class="c1"># Clear The Screen And The Depth Buffer</span>
+		<span class="n">glClear</span><span class="p">(</span><span class="n">GL_COLOR_BUFFER_BIT</span> <span class="o">|</span> <span class="n">GL_DEPTH_BUFFER_BIT</span><span class="p">)</span>
+		<span class="n">glCallList</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frameQuad</span><span class="p">)</span>
+		
+<div class="viewcode-block" id="VideoPlayer.play"><a class="viewcode-back" href="../api.html#play.VideoPlayer.play">[docs]</a>	<span class="k">def</span> <span class="nf">play</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Starts playback. &quot;&quot;&quot;</span>
+		<span class="c1"># Signal player to start video playback</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">paused</span> <span class="o">=</span> <span class="bp">False</span>
+
+		<span class="c1"># Start listening for incoming audio frames</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">audioformat</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">audio</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+		<span class="c1"># While video is playing, render frames</span>
+		<span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">status</span> <span class="ow">in</span> <span class="p">[</span><span class="n">mediadecoder</span><span class="o">.</span><span class="n">PLAYING</span><span class="p">,</span> <span class="n">mediadecoder</span><span class="o">.</span><span class="n">PAUSED</span><span class="p">]:</span>
+			<span class="n">texture_update_time</span> <span class="o">=</span> <span class="mi">0</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">texUpdated</span><span class="p">:</span>
+				<span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+				<span class="c1"># Update texture</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">texture_locked</span> <span class="o">=</span> <span class="bp">True</span>
+				<span class="n">glTexSubImage2D</span><span class="p">(</span> <span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vidsize</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> 
+					<span class="bp">self</span><span class="o">.</span><span class="n">vidsize</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">GL_RGB</span><span class="p">,</span> <span class="n">GL_UNSIGNED_BYTE</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">)</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">texture_locked</span> <span class="o">=</span> <span class="bp">False</span>
+				<span class="n">texture_update_time</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1</span><span class="p">)</span><span class="o">*</span><span class="mi">1000</span><span class="p">)</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">texUpdated</span> <span class="o">=</span> <span class="bp">False</span>
+			
+			<span class="c1"># Draw the texture to the back buffer</span>
+			<span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">__drawFrame</span><span class="p">()</span>
+			<span class="n">draw_time</span> <span class="o">=</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1</span><span class="p">)</span><span class="o">*</span><span class="mi">1000</span>
+			<span class="c1"># Flip the buffer to show frame to screen</span>
+			<span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+			<span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">flip</span><span class="p">()</span>
+			<span class="n">flip_time</span> <span class="o">=</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1</span><span class="p">)</span><span class="o">*</span><span class="mi">1000</span>
+
+			<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;================== Frame {} ========================&quot;</span>
+				<span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">current_frame_no</span><span class="p">))</span>
+			<span class="k">if</span> <span class="n">texture_update_time</span><span class="p">:</span>
+				<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Texture updated in {0} ms&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">texture_update_time</span><span class="p">))</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Texture drawn in {0} ms&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">draw_time</span><span class="p">))</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Screen flipped in {0} ms&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">flip_time</span><span class="p">))</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;-----------------------------------------------------&quot;</span><span class="p">)</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Total: {} ms&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">texture_update_time</span><span class="o">+</span><span class="n">draw_time</span><span class="o">+</span><span class="n">flip_time</span><span class="p">))</span>
+
+			<span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+				<span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">:</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+				<span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">KEYDOWN</span><span class="p">:</span>
+					<span class="c1"># Quitting</span>
+					<span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">K_ESCAPE</span><span class="p">:</span>
+						<span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+					<span class="c1"># Pausing</span>
+					<span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">K_SPACE</span><span class="p">:</span>
+						<span class="bp">self</span><span class="o">.</span><span class="n">pause</span><span class="p">()</span>
+					<span class="c1"># Seeking</span>
+					<span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">K_RIGHT</span><span class="p">:</span>
+						<span class="n">new_time</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+							<span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">current_playtime</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span>
+							<span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span>
+						<span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">new_time</span><span class="p">)</span>
+					<span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">K_LEFT</span><span class="p">:</span>
+						<span class="n">new_time</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+							<span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">current_playtime</span> <span class="o">-</span> <span class="mi">10</span><span class="p">,</span>
+							<span class="mi">0</span><span class="p">)</span>
+						<span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">new_time</span><span class="p">)</span>
+
+			<span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">pump</span><span class="p">()</span>   <span class="c1"># Prevent freezing of screen while dragging </span>
+
+			<span class="c1"># Without this sleep, the video rendering threard goes haywire...</span>
+			<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.005</span><span class="p">)</span>
+		
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">audioformat</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">audio</span><span class="o">.</span><span class="n">close_stream</span><span class="p">()</span>
+				
+		<span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="VideoPlayer.stop"><a class="viewcode-back" href="../api.html#play.VideoPlayer.stop">[docs]</a>	<span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Stops playback. &quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="VideoPlayer.pause"><a class="viewcode-back" href="../api.html#play.VideoPlayer.pause">[docs]</a>	<span class="k">def</span> <span class="nf">pause</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Pauses playback. &quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">mediadecoder</span><span class="o">.</span><span class="n">PAUSED</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">pause</span><span class="p">()</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">paused</span> <span class="o">=</span> <span class="bp">False</span>
+		<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">mediadecoder</span><span class="o">.</span><span class="n">PLAYING</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">pause</span><span class="p">()</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">paused</span> <span class="o">=</span> <span class="bp">True</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Player not in pausable state&quot;</span><span class="p">)</span></div></div>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+	<span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;mediafile&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;the path to the media file to play&quot;</span><span class="p">)</span>
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="s2">&quot;--debug&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;debugging mode: print lots of info&quot;</span><span class="p">,</span> 
+		<span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-f&quot;</span><span class="p">,</span> <span class="s2">&quot;--fullscreen&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;show movie in fullscreen&quot;</span><span class="p">,</span> 
+		<span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-l&quot;</span><span class="p">,</span> <span class="s2">&quot;--loop&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;loop the video&quot;</span><span class="p">,</span> 
+		<span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-s&quot;</span><span class="p">,</span> <span class="s2">&quot;--soundrenderer&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;the backend that should &quot;</span>
+		<span class="s2">&quot; render the sound (default: pyaudio)&quot;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pygame&quot;</span><span class="p">,</span><span class="s2">&quot;pyaudio&quot;</span><span class="p">],</span> 
+		<span class="n">default</span><span class="o">=</span><span class="s2">&quot;pyaudio&quot;</span><span class="p">)</span>
+	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-r&quot;</span><span class="p">,</span> <span class="s2">&quot;--resolution&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The resolution of the video.&quot;</span>
+		<span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Specify as &lt;width&gt;x&lt;height&gt; (default: 1024x768)&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;1024x768&quot;</span><span class="p">)</span>
+
+	<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+	<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
+		<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+
+	<span class="n">resolution</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">resolution</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+		<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Invalid value specified for resolution: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">resolution</span><span class="p">))</span>
+		<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+	<span class="n">windowRes</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span><span class="n">resolution</span><span class="p">))</span>
+	<span class="n">myVideoPlayer</span> <span class="o">=</span> <span class="n">VideoPlayer</span><span class="p">(</span><span class="n">windowRes</span><span class="p">,</span> <span class="n">fullscreen</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">fullscreen</span><span class="p">,</span> 
+		<span class="n">soundrenderer</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">soundrenderer</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">loop</span><span class="p">)</span>
+	<span class="n">myVideoPlayer</span><span class="o">.</span><span class="n">load_media</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">mediafile</span><span class="p">)</span>
+	<span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Starting video&quot;</span><span class="p">)</span>
+	<span class="n">myVideoPlayer</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Daniel Schreij.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

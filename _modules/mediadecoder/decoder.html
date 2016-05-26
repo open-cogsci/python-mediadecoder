@@ -1,0 +1,651 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>mediadecoder.decoder &mdash; MoviePy Media Decoder 0.1.2 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="MoviePy Media Decoder 0.1.2 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> MoviePy Media Decoder
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.2
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">MoviePy Media Decoder</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>mediadecoder.decoder</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for mediadecoder.decoder</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Python 3 compatibility</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
+
+<span class="c1"># MoviePy</span>
+<span class="k">try</span><span class="p">:</span>
+	<span class="kn">from</span> <span class="nn">moviepy.video.io.VideoFileClip</span> <span class="kn">import</span> <span class="n">VideoFileClip</span>
+	<span class="kn">from</span> <span class="nn">moviepy.tools</span> <span class="kn">import</span> <span class="n">cvsecs</span>
+	<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+	<span class="k">print</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;Error importing dependencies:</span>
+<span class="s2">{0}</span>
+
+<span class="s2">This module depends on the following packages</span>
+
+<span class="s2">- MoviePy</span>
+<span class="s2">- ImageIO</span>
+<span class="s2">- Numpy</span>
+
+<span class="s2">Please make sure that they are installed.&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+<span class="c1"># Other modules</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="k">try</span><span class="p">:</span>
+	<span class="c1"># Python 3</span>
+	<span class="kn">from</span> <span class="nn">queue</span> <span class="kn">import</span> <span class="n">Queue</span><span class="p">,</span> <span class="n">Full</span>
+<span class="k">except</span><span class="p">:</span>
+	<span class="c1"># Python 2</span>
+	<span class="kn">from</span> <span class="nn">Queue</span> <span class="kn">import</span> <span class="n">Queue</span><span class="p">,</span> <span class="n">Full</span>
+<span class="n">queue_length</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="kn">from</span> <span class="nn">mediadecoder.states</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">mediadecoder.timer</span> <span class="kn">import</span> <span class="n">Timer</span>
+<span class="kn">from</span> <span class="nn">mediadecoder.soundrenderers._base</span> <span class="kn">import</span> <span class="n">SoundRenderer</span>
+
+<div class="viewcode-block" id="Decoder"><a class="viewcode-back" href="../../api.html#mediadecoder.decoder.Decoder">[docs]</a><span class="k">class</span> <span class="nc">Decoder</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot; This class loads a video file that can be played. It can </span>
+<span class="sd">	be passed a callback function to which decoded video frames should be passed. </span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Decoder.__init__"><a class="viewcode-back" href="../../api.html#mediadecoder.decoder.Decoder.__init__">[docs]</a>	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mediafile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">videorenderfunc</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">play_audio</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Constructor.</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		mediafile : str, optional</span>
+<span class="sd">			The path to the mediafile to be loaded (default: None)</span>
+<span class="sd">		videorenderfunc : callable (default: None)</span>
+<span class="sd">			Callback function that takes care of the actual</span>
+<span class="sd">			Rendering of the videoframe.\</span>
+<span class="sd">			The specified renderfunc should be able to accept the following</span>
+<span class="sd">			arguments:</span>
+<span class="sd">				- frame (numpy.ndarray): the videoframe to be rendered</span>
+<span class="sd">		play_audio : bool, optional</span>
+<span class="sd">			Whether audio of the clip should be played.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c1"># Create an internal timer</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">clock</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">()</span>
+
+		<span class="c1"># Load a video file if specified, but allow users to do this later</span>
+		<span class="c1"># by initializing all variables to None</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_media</span><span class="p">(</span><span class="n">mediafile</span><span class="p">,</span> <span class="n">play_audio</span><span class="p">):</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+		<span class="c1"># Set callback function if set</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">set_videoframerender_callback</span><span class="p">(</span><span class="n">videorenderfunc</span><span class="p">)</span>
+
+		<span class="c1"># Store instance variables</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">play_audio</span> <span class="o">=</span> <span class="n">play_audio</span></div>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">frame_interval</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Duration in seconds of a single frame. &quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">frame_interval</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">current_frame_no</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Current frame_no of video. &quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">current_frame</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">current_videoframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Representation of current video frame as a numpy array. &quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__current_videoframe</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">current_playtime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Clocks current runtime in seconds. &quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">time</span>
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Indicates whether the playback should loop. &quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span>
+	
+	<span class="nd">@loop.setter</span>
+	<span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Indicates whether the playback should loop. </span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		value : bool</span>
+<span class="sd">			True if playback should loop, False if not.</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;can only be True or False&quot;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_loop</span> <span class="o">=</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="Decoder.reset"><a class="viewcode-back" href="../../api.html#mediadecoder.decoder.Decoder.reset">[docs]</a>	<span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Resets the player and discards loaded data. &quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">clip</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">loaded_file</span> <span class="o">=</span> <span class="bp">None</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">fps</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="bp">None</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">UNINITIALIZED</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Decoder.load_media"><a class="viewcode-back" href="../../api.html#mediadecoder.decoder.Decoder.load_media">[docs]</a>	<span class="k">def</span> <span class="nf">load_media</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mediafile</span><span class="p">,</span> <span class="n">play_audio</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Loads a media file to decode. </span>
+
+<span class="sd">		If an audiostream is detected, its parameters will be stored in a</span>
+<span class="sd">		dictionary in the variable `audioformat`. This contains the fields </span>
+
+<span class="sd">		:nbytes: the number of bytes in the stream (2 is 16-bit sound).</span>
+<span class="sd">		:nchannels: the channels (2 for stereo, 1 for mono)</span>
+<span class="sd">		:fps: the frames per sec/sampling rate of the sound (e.g. 44100 KhZ).</span>
+<span class="sd">		:buffersize: the audioframes per buffer.</span>
+<span class="sd">		</span>
+<span class="sd">		If play_audio was set to False, or the video does not have an audiotrack,</span>
+<span class="sd">		`audioformat` will be None.</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		mediafile : str</span>
+<span class="sd">			The path to the media file to load.</span>
+<span class="sd">		play_audio : bool, optional</span>
+<span class="sd">			Indicates whether the audio of a movie should be played.</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		------</span>
+<span class="sd">		IOError</span>
+<span class="sd">			When the file could not be found or loaded.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">mediafile</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">mediafile</span><span class="p">):</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">clip</span> <span class="o">=</span> <span class="n">VideoFileClip</span><span class="p">(</span><span class="n">mediafile</span><span class="p">,</span> <span class="n">audio</span><span class="o">=</span><span class="n">play_audio</span><span class="p">)</span>
+
+				<span class="bp">self</span><span class="o">.</span><span class="n">loaded_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">mediafile</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+				<span class="c1">## Timing variables</span>
+				<span class="c1"># Clip duration</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clip</span><span class="o">.</span><span class="n">duration</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">max_duration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clip</span><span class="o">.</span><span class="n">duration</span>
+				<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Video clip duration: {}s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="p">))</span>
+
+				<span class="c1"># Frames per second of clip</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">fps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clip</span><span class="o">.</span><span class="n">fps</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">fps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clip</span><span class="o">.</span><span class="n">fps</span>
+				<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Video clip FPS: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fps</span><span class="p">))</span>
+
+				<span class="k">if</span> <span class="n">play_audio</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">clip</span><span class="o">.</span><span class="n">audio</span><span class="p">:</span>
+					<span class="n">buffersize</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame_interval</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">clip</span><span class="o">.</span><span class="n">audio</span><span class="o">.</span><span class="n">fps</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">audioformat</span> <span class="o">=</span> <span class="p">{</span>
+						<span class="s1">&#39;nbytes&#39;</span><span class="p">:</span>  	  	<span class="mi">2</span><span class="p">,</span>
+						<span class="s1">&#39;nchannels&#39;</span><span class="p">:</span>	<span class="bp">self</span><span class="o">.</span><span class="n">clip</span><span class="o">.</span><span class="n">audio</span><span class="o">.</span><span class="n">nchannels</span><span class="p">,</span>
+						<span class="s1">&#39;fps&#39;</span><span class="p">:</span>	 	  	<span class="bp">self</span><span class="o">.</span><span class="n">clip</span><span class="o">.</span><span class="n">audio</span><span class="o">.</span><span class="n">fps</span><span class="p">,</span>
+						<span class="s1">&#39;buffersize&#39;</span><span class="p">:</span>	<span class="n">buffersize</span>
+					<span class="p">}</span>
+					<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Audio loaded: </span><span class="se">\n</span><span class="s2">{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">audioformat</span><span class="p">))</span>
+					<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Creating audio buffer of length: &quot;</span>
+						<span class="s2">&quot; {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">queue_length</span><span class="p">))</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">audioqueue</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">(</span><span class="n">queue_length</span><span class="p">)</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">audioformat</span> <span class="o">=</span> <span class="bp">None</span>
+
+				<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Loaded {0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mediafile</span><span class="p">))</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">READY</span>
+				<span class="k">return</span> <span class="bp">True</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;File not found: {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mediafile</span><span class="p">))</span>
+		<span class="k">return</span> <span class="bp">False</span></div>
+
+<div class="viewcode-block" id="Decoder.set_videoframerender_callback"><a class="viewcode-back" href="../../api.html#mediadecoder.decoder.Decoder.set_videoframerender_callback">[docs]</a>	<span class="k">def</span> <span class="nf">set_videoframerender_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Sets the function to call when a new frame is available. </span>
+<span class="sd">		This function is passed the frame (in the form of a numpy.ndarray) and</span>
+<span class="sd">		should take care of the rendering. </span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		func : callable</span>
+<span class="sd">			The function to pass the new frame to once it becomes available.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="c1"># Check if renderfunc is indeed a function</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">func</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+			<span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The object passed for videorenderfunc is not a function&quot;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__videorenderfunc</span> <span class="o">=</span> <span class="n">func</span></div>
+
+<div class="viewcode-block" id="Decoder.set_audiorenderer"><a class="viewcode-back" href="../../api.html#mediadecoder.decoder.Decoder.set_audiorenderer">[docs]</a>	<span class="k">def</span> <span class="nf">set_audiorenderer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">renderer</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Sets the SoundRenderer object. This should take care of processing </span>
+<span class="sd">		the audioframes set in audioqueue.</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		renderer : sound_renderers.SoundRenderer</span>
+<span class="sd">			A subclass of sound_renderers.SoundRenderer that takes care of the</span>
+<span class="sd">			audio rendering.</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		------</span>
+<span class="sd">		RuntimeError</span>
+<span class="sd">			If no information about the audiostream is available. This could be</span>
+<span class="sd">			because no video has been loaded yet, or because no embedded </span>
+<span class="sd">			audiostream could be detected in the video, or play_sound was set</span>
+<span class="sd">			to False.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;audioqueue&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">audioqueue</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No video has been loaded, or no audiostream &quot;</span>
+				<span class="s2">&quot;was detected.&quot;</span><span class="p">)</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">renderer</span><span class="p">,</span> <span class="n">SoundRenderer</span><span class="p">):</span>
+			<span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid renderer object. Not a subclass of &quot;</span>
+				<span class="s2">&quot;SoundRenderer&quot;</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">soundrenderer</span> <span class="o">=</span> <span class="n">renderer</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">soundrenderer</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">audioqueue</span></div>
+
+<div class="viewcode-block" id="Decoder.play"><a class="viewcode-back" href="../../api.html#mediadecoder.decoder.Decoder.play">[docs]</a>	<span class="k">def</span> <span class="nf">play</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Start the playback of the video. </span>
+<span class="sd">		The playback loop is run in a separate thread, so this function returns </span>
+<span class="sd">		immediately. This allows one to implement things such as event handling </span>
+<span class="sd">		loops (e.g. check for key presses) elsewhere.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c1">### First do some status checks</span>
+
+		<span class="c1"># Make sure a file is loaded</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">UNINITIALIZED</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">clip</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Player uninitialized or no file loaded&quot;</span><span class="p">)</span>
+
+		<span class="c1"># Check if playback has already finished (rewind needs to be called first)</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">EOS</span><span class="p">:</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;End of stream has already been reached&quot;</span><span class="p">)</span>
+			<span class="k">return</span>
+
+		<span class="c1"># Check if playback hasn&#39;t already been started (and thus if play()</span>
+		<span class="c1"># has not been called before from another thread for instance)</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="ow">in</span> <span class="p">[</span><span class="n">PLAYING</span><span class="p">,</span><span class="n">PAUSED</span><span class="p">]:</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Video already started&quot;</span><span class="p">)</span>
+			<span class="k">return</span>
+
+		<span class="c1">### If all is in order start the general playing loop</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">READY</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">PLAYING</span>
+
+		<span class="bp">self</span><span class="o">.</span><span class="n">last_frame_no</span> <span class="o">=</span> <span class="mi">0</span>
+
+		<span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;renderloop&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">renderloop</span><span class="o">.</span><span class="n">isAlive</span><span class="p">():</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">audioformat</span><span class="p">:</span>
+				<span class="c1"># Chop the total stream into separate audio chunks that are the</span>
+				<span class="c1"># lenght of a video frame (this way the index of each chunk </span>
+				<span class="c1"># corresponds to the video frame it belongs to.)</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">__calculate_audio_frames</span><span class="p">()</span>
+				<span class="c1"># Start audio handling thread. This thread places audioframes</span>
+				<span class="c1"># into a sound buffer, untill this buffer is full.</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">audioframe_handler</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span>
+					<span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__audiorender_thread</span><span class="p">)</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">audioframe_handler</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+			<span class="c1"># Start main rendering loop.</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">renderloop</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__render</span><span class="p">)</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">renderloop</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Rendering thread already running!&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Decoder.pause"><a class="viewcode-back" href="../../api.html#mediadecoder.decoder.Decoder.pause">[docs]</a>	<span class="k">def</span> <span class="nf">pause</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Pauses or resumes the video and/or audio stream. &quot;&quot;&quot;</span>
+
+		<span class="c1"># Change playback status only if current status is PLAYING or PAUSED </span>
+		<span class="c1"># (and not READY).</span>
+		<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Pausing playback&quot;</span><span class="p">)</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">PAUSED</span><span class="p">:</span>
+			<span class="c1"># Recalculate audio stream position to make sure it is not out of</span>
+			<span class="c1"># sync with the video</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">__calculate_audio_frames</span><span class="p">()</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">PLAYING</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">pause</span><span class="p">()</span>
+		<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">PLAYING</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">PAUSED</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">pause</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Decoder.stop"><a class="viewcode-back" href="../../api.html#mediadecoder.decoder.Decoder.stop">[docs]</a>	<span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Stops the video stream and resets the clock. &quot;&quot;&quot;</span>
+
+		<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Stopping playback&quot;</span><span class="p">)</span>
+		<span class="c1"># Stop the clock</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+		<span class="c1"># Set plauyer status to ready</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">READY</span></div>
+
+<div class="viewcode-block" id="Decoder.seek"><a class="viewcode-back" href="../../api.html#mediadecoder.decoder.Decoder.seek">[docs]</a>	<span class="k">def</span> <span class="nf">seek</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Seek to the specified time.</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		value : str or int</span>
+<span class="sd">			The time to seek to. Can be any of the following formats:</span>
+
+<span class="sd">		    &gt;&gt;&gt; 15.4 -&gt; 15.4 # seconds</span>
+<span class="sd">		    &gt;&gt;&gt; (1,21.5) -&gt; 81.5 # (min,sec)</span>
+<span class="sd">		    &gt;&gt;&gt; (1,1,2) -&gt; 3662 # (hr, min, sec)</span>
+<span class="sd">		    &gt;&gt;&gt; &#39;01:01:33.5&#39; -&gt; 3693.5  #(hr,min,sec)</span>
+<span class="sd">		    &gt;&gt;&gt; &#39;01:01:33.045&#39; -&gt; 3693.045</span>
+<span class="sd">		    &gt;&gt;&gt; &#39;01:01:33,5&#39; #comma works too</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c1"># Pause the stream</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">pause</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">value</span>
+		<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Seeking to {} seconds; frame {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> 
+			<span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">current_frame</span><span class="p">))</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">audioformat</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">__calculate_audio_frames</span><span class="p">()</span>
+		<span class="c1"># Resume the stream</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">pause</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Decoder.rewind"><a class="viewcode-back" href="../../api.html#mediadecoder.decoder.Decoder.rewind">[docs]</a>	<span class="k">def</span> <span class="nf">rewind</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Rewinds the video to the beginning.</span>
+<span class="sd">		Convenience function simply calling seek(0). &quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+
+	<span class="k">def</span> <span class="nf">__calculate_audio_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Aligns audio with video. </span>
+<span class="sd">		This should be called for instance after a seeking operation or resuming </span>
+<span class="sd">		from a pause. &quot;&quot;&quot;</span>
+
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">audioformat</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="k">return</span>
+		<span class="n">start_frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">current_frame</span>
+		<span class="n">totalsize</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clip</span><span class="o">.</span><span class="n">audio</span><span class="o">.</span><span class="n">fps</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">clip</span><span class="o">.</span><span class="n">audio</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">audio_times</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">totalsize</span><span class="p">,</span> 
+			<span class="bp">self</span><span class="o">.</span><span class="n">audioformat</span><span class="p">[</span><span class="s1">&#39;buffersize&#39;</span><span class="p">]))</span> <span class="o">+</span> <span class="p">[</span><span class="n">totalsize</span><span class="p">]</span>
+		<span class="c1"># Remove audio segments up to the starting frame</span>
+		<span class="k">del</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">audio_times</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">start_frame</span><span class="p">])</span>
+
+	<span class="k">def</span> <span class="nf">__render</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Main render loop. </span>
+
+<span class="sd">		Checks clock if new video and audio frames need to be rendered. </span>
+<span class="sd">		If so, it passes the frames to functions that take care </span>
+<span class="sd">		of rendering these frames. &quot;&quot;&quot;</span>
+
+		<span class="c1"># Render first frame</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__render_videoframe</span><span class="p">()</span>
+
+		<span class="c1"># Start videoclock with start of this thread</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+		<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Started rendering loop.&quot;</span><span class="p">)</span>
+		<span class="c1"># Main rendering loop</span>
+		<span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="ow">in</span> <span class="p">[</span><span class="n">PLAYING</span><span class="p">,</span><span class="n">PAUSED</span><span class="p">]:</span>
+			<span class="n">current_frame_no</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">current_frame</span>
+
+			<span class="c1"># Check if end of clip has been reached</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">time</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration</span><span class="p">:</span>
+				<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;End of stream reached at {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">time</span><span class="p">))</span>
+				<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="p">:</span>
+					<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Looping: restarting stream&quot;</span><span class="p">)</span>
+					<span class="c1"># Seek to the start</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="c1"># End of stream has been reached</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">EOS</span>
+					<span class="k">break</span>
+
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_frame_no</span> <span class="o">!=</span> <span class="n">current_frame_no</span><span class="p">:</span>
+				<span class="c1"># A new frame is available. Get it from te stream</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">__render_videoframe</span><span class="p">()</span>
+
+			<span class="bp">self</span><span class="o">.</span><span class="n">last_frame_no</span> <span class="o">=</span> <span class="n">current_frame_no</span>
+
+			<span class="c1"># Sleeping is a good idea to give the other threads some breathing</span>
+			<span class="c1"># space to do their work.</span>
+			<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.005</span><span class="p">)</span>
+
+		<span class="c1"># Stop the clock.</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+		<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Rendering stopped.&quot;</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">__render_videoframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Retrieves a new videoframe from the stream.</span>
+
+<span class="sd">		Sets the frame as the __current_video_frame and passes it on to</span>
+<span class="sd">		__videorenderfunc() if it is set. &quot;&quot;&quot;</span>
+
+		<span class="n">new_videoframe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clip</span><span class="o">.</span><span class="n">get_frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">time</span><span class="p">)</span>
+		<span class="c1"># Pass it to the callback function if this is set</span>
+		<span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__videorenderfunc</span><span class="p">):</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">__videorenderfunc</span><span class="p">(</span><span class="n">new_videoframe</span><span class="p">)</span>
+		<span class="c1"># Set current_frame to current frame (...)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">__current_videoframe</span> <span class="o">=</span> <span class="n">new_videoframe</span>
+
+	<span class="k">def</span> <span class="nf">__audiorender_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Thread that takes care of the audio rendering. Do not call directly,</span>
+<span class="sd">		but only as the target of a thread. &quot;&quot;&quot;</span>
+		<span class="n">new_audioframe</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Started audio rendering thread.&quot;</span><span class="p">)</span>
+
+		<span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="ow">in</span> <span class="p">[</span><span class="n">PLAYING</span><span class="p">,</span><span class="n">PAUSED</span><span class="p">]:</span>
+			<span class="c1"># Retrieve audiochunk</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">PLAYING</span> <span class="ow">and</span> <span class="n">new_audioframe</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+				<span class="c1"># Get a new frame from the audiostream, skip to the next one</span>
+				<span class="c1"># if the current one gives a problem</span>
+				<span class="k">try</span><span class="p">:</span>
+					<span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">audio_times</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+					<span class="n">stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">audio_times</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+				<span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+					<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Audio times could not be obtained&quot;</span><span class="p">)</span>
+					<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.02</span><span class="p">)</span>
+					<span class="k">continue</span>
+
+				<span class="c1"># Get the frame numbers to extract from the audio stream.</span>
+				<span class="n">chunk</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">audioformat</span><span class="p">[</span><span class="s1">&#39;fps&#39;</span><span class="p">])</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">)</span>
+
+				<span class="k">try</span><span class="p">:</span>
+					<span class="c1"># Extract the frames from the audio stream. Does not always,</span>
+					<span class="c1"># succeed (e.g. with bad streams missing frames), so make</span>
+					<span class="c1"># sure this doesn&#39;t crash the whole program.</span>
+					<span class="n">new_audioframe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clip</span><span class="o">.</span><span class="n">audio</span><span class="o">.</span><span class="n">to_soundarray</span><span class="p">(</span>
+						<span class="n">tt</span> <span class="o">=</span> <span class="n">chunk</span><span class="p">,</span>
+						<span class="n">buffersize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_interval</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">clip</span><span class="o">.</span><span class="n">audio</span><span class="o">.</span><span class="n">fps</span><span class="p">,</span>
+						<span class="n">quantize</span><span class="o">=</span><span class="bp">True</span>
+					<span class="p">)</span>
+				<span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+					<span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Sound decoding error: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+					<span class="n">new_audioframe</span> <span class="o">=</span> <span class="bp">None</span>
+			<span class="c1"># Put audioframe in buffer/queue for soundrenderer to pick up. If</span>
+			<span class="c1"># the queue is full, try again after a timeout (this allows to check</span>
+			<span class="c1"># if the status is still PLAYING after a pause.)</span>
+			<span class="k">if</span> <span class="ow">not</span> <span class="n">new_audioframe</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+				<span class="k">try</span><span class="p">:</span>
+					<span class="bp">self</span><span class="o">.</span><span class="n">audioqueue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">new_audioframe</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=.</span><span class="mo">05</span><span class="p">)</span>
+					<span class="n">new_audioframe</span> <span class="o">=</span> <span class="bp">None</span>
+				<span class="k">except</span> <span class="n">Full</span><span class="p">:</span>
+					<span class="k">pass</span>
+		
+		<span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Stopped audio rendering thread.&quot;</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Create a string representation for when print() is called. &quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="s2">&quot;Decoder [file loaded: {0}]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loaded_file</span><span class="p">)</span></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Daniel Schreij.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
