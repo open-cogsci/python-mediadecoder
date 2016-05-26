@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Python-mediadecoder by dschreij</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Python-mediadecoder</h1>
+      <h2 class="project-tagline">A media decoding library based on MoviePy</h2>
+      <a href="https://github.com/dschreij/python-mediadecoder" class="btn">View on GitHub</a>
+      <a href="https://github.com/dschreij/python-mediadecoder/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/dschreij/python-mediadecoder/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="movie-decoder-for-python-based-on-moviepy" class="anchor" href="#movie-decoder-for-python-based-on-moviepy" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Movie decoder for Python based on MoviePy</h1>
+
+<p>This library allows you to play and render movies in Python. It is based on the
+(rather excellent) <a href="http://zulko.github.io/moviepy/">MoviePy</a> module created by Zulko, which offers a convenient Python interface to ffmpeg. This library should hence be able to decode any format that ffmpeg supports. If ffmpeg is not found to be installed, moviepy will download it for you on first usage, which may take some time (keep an eye on that terminal/command prompt to see the download progress).</p>
+
+<p>The actual rendering of each frame one will have to implement himself, but you can use the play.py module included in this repository as an example. The <code>play.py</code> file contains an example of how to play a video using OpenGL+pygame for the video rendering and pyaudio for audio playback (using pygame.mixer is also an option, but that doesn't work smoothly yet).</p>
+
+<p>To see it run right away, you can invoke play.py with the following options:</p>
+
+<pre><code>usage: play.py [-h] [-d] [-f] [-l] [-s {pygame,pyaudio}] [-r RESOLUTION]
+               mediafile
+
+positional arguments:
+  mediafile             the path to the media file to play
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d, --debug           debugging mode: print lots of info
+  -f, --fullscreen      show movie in fullscreen
+  -l, --loop            loop the video
+  -s {pygame,pyaudio}, --soundrenderer {pygame,pyaudio}
+                        the backend that should render the sound (default:
+                        pyaudio)
+  -r RESOLUTION, --resolution RESOLUTION
+                        The resolution of the video. Specify as
+                        &lt;width&gt;x&lt;height&gt; (default: 1024x768)
+</code></pre>
+
+<p>This example player furthermore supports pausing playback (by pressing space), seeking 10s forward or backward (by pressing left or right arrow keys) and can be exited by pressing ESC or clicking the close button.</p>
+
+<h2>
+<a id="dependencies" class="anchor" href="#dependencies" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Dependencies</h2>
+
+<p>This module depends on the following other libraries.</p>
+
+<ul>
+<li>MoviePy (<a href="http://zulko.github.io/moviepy/">http://zulko.github.io/moviepy/</a>)</li>
+<li>pyAudio (<a href="https://people.csail.mit.edu/hubert/pyaudio/">https://people.csail.mit.edu/hubert/pyaudio/</a>)</li>
+</ul>
+
+<p>That should be enough to get you started, if you plan to implement your own rendering functions for video and audio. If you also want to be able to view the example provided by <code>play.py</code> you further need</p>
+
+<ul>
+<li>pygame (<a href="http://www.pygame.org/">http://www.pygame.org/</a>)</li>
+<li>pyOpenGL (<a href="http://pyopengl.sourceforge.net/">http://pyopengl.sourceforge.net/</a>)</li>
+</ul>
+
+<h2>
+<a id="todos" class="anchor" href="#todos" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>TODO's</h2>
+
+<p>This module is (and will probably always be) a 'work in progress'. For now</p>
+
+<ul>
+<li>Implementing volume control functions.</li>
+<li>Find a faster method than glTexSubImage2D to get the frame onto the texture to improve performance of the player (even though it works quite well now, it plays Big Buck Bunny at 1080p <a href="https://github.com/60fps" class="user-mention">@60fps</a> without too many dropped frames, but performance is still far behind to other players such as vlc).</li>
+<li>Get pygame audiorenderer working with the current audioqueue implementation.</li>
+<li>Let the decoder also work for audio-only streams/files.</li>
+</ul>
+
+<p>are on my to-do list, but if you have more suggestions, feel free to open up an issue with a feature request.</p>
+
+<h2>
+<a id="api-reference" class="anchor" href="#api-reference" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>API reference</h2>
+
+<p>Further documentation, including an API reference, can be found <a href="https://dschreij.github.io/python-mediadecoder">here</a>.</p>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h2>
+
+<p>Like moviepy, this module is licensed under the MIT license:</p>
+
+<p>The MIT License (MIT)
+Copyright (c) 2016 Daniel Schreij</p>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/dschreij/python-mediadecoder">Python-mediadecoder</a> is maintained by <a href="https://github.com/dschreij">dschreij</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
