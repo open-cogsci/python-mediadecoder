@@ -33,4 +33,4 @@ option, but that doesn't work smoothly yet). You can play a video by calling
 View on Github_
 
 .. _MoviePy: http://zulko.github.io/moviepy/
-.. _Github: https://github.com/dschreij/media_player_mpy
+.. _Github: https://github.com/dschreij/python-mediadecoder
