@@ -12,9 +12,17 @@ from moviepy.tools import cvsecs
 
 class Timer(object):
 	""" Timer serves as a video clock that is used to determine which frame needs to be
-	displayed at the specified time. It runs in a separate thread. 
-	Time can be polled by checking its property clock.time, and the current frame
-	can be determined by checking clock.current_frame. """
+	displayed at a specified time. the clock runs in its own separate thread. 
+	Say you have an instance of Timer called ``clock``. The time can be polled by 
+	checking 
+
+	>> clock.time 
+
+	and the current frame can be determined by checking 
+
+	>> clock.current_frame. 
+
+	"""
 
 	def __init__(self, fps=None, max_duration=None):
 		""" Constructor.

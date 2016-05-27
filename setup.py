@@ -28,9 +28,10 @@ setup(
 		'moviepy',
 		'numpy',
 	],
+	license='MIT',
 	classifiers=[
 		'Intended Audience :: Developers',
-		'Topic :: Desktop Environment',
+		'Environment :: Console',
 		'Topic :: Documentation :: Sphinx',
 		'Topic :: Multimedia :: Sound/Audio',
 		'Topic :: Multimedia :: Sound/Audio :: Players',
@@ -40,7 +41,6 @@ setup(
 		'Operating System :: Microsoft :: Windows',
 		'Operating System :: POSIX',
 		'License :: OSI Approved :: MIT License',
-		'Programming Language :: Python :: 2',
-		'Programming Language :: Python :: 3',
+		'Programming Language :: Python',
 	],
 )
