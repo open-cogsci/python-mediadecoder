@@ -32,13 +32,13 @@ class SoundrendererSounddevice(SoundRenderer):
 		self.stream = sd.OutputStream(
 			channels  	= audioformat["nchannels"],
 			samplerate 	= audioformat["fps"],
-			blocksize 	= 0,
+			blocksize 	= audioformat["buffersize"]*2,
 			callback 	= self.get_frame
 		)
 		self.keep_listening = True
 
 	def get_frame(self, outdata, frames, timedata, status):
-		""" Callback function for the pyaudio stream. Don't use directly. """
+		""" Callback function for the audio stream. Don't use directly. """
 		try:
 			chunk = self.queue.get_nowait()
 			outdata[:] = chunk
