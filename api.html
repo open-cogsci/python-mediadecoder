@@ -572,9 +572,12 @@ should take care of the rendering.</p>
 <dt id="mediadecoder.timer.Timer">
 <em class="property">class </em><code class="descclassname">mediadecoder.timer.</code><code class="descname">Timer</code><span class="sig-paren">(</span><em>fps=None</em>, <em>max_duration=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/timer.html#Timer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.timer.Timer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Timer serves as a video clock that is used to determine which frame needs to be
-displayed at the specified time. It runs in a separate thread. 
-Time can be polled by checking its property clock.time, and the current frame
-can be determined by checking clock.current_frame.</p>
+displayed at a specified time. the clock runs in its own separate thread. 
+Say you have an instance of Timer called <code class="docutils literal"><span class="pre">clock</span></code>. The time can be polled by 
+checking</p>
+<p>&gt;&gt; clock.time</p>
+<p>and the current frame can be determined by checking</p>
+<p>&gt;&gt; clock.current_frame.</p>
 <p class="rubric">Attributes</p>
 <table border="1" class="longtable docutils">
 <colgroup>

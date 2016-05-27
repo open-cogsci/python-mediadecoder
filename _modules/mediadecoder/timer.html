@@ -142,9 +142,17 @@
 
 <div class="viewcode-block" id="Timer"><a class="viewcode-back" href="../../api.html#mediadecoder.timer.Timer">[docs]</a><span class="k">class</span> <span class="nc">Timer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 	<span class="sd">&quot;&quot;&quot; Timer serves as a video clock that is used to determine which frame needs to be</span>
-<span class="sd">	displayed at the specified time. It runs in a separate thread. </span>
-<span class="sd">	Time can be polled by checking its property clock.time, and the current frame</span>
-<span class="sd">	can be determined by checking clock.current_frame. &quot;&quot;&quot;</span>
+<span class="sd">	displayed at a specified time. the clock runs in its own separate thread. </span>
+<span class="sd">	Say you have an instance of Timer called ``clock``. The time can be polled by </span>
+<span class="sd">	checking </span>
+
+<span class="sd">	&gt;&gt; clock.time </span>
+
+<span class="sd">	and the current frame can be determined by checking </span>
+
+<span class="sd">	&gt;&gt; clock.current_frame. </span>
+
+<span class="sd">	&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Timer.__init__"><a class="viewcode-back" href="../../api.html#mediadecoder.timer.Timer.__init__">[docs]</a>	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">max_duration</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; Constructor.</span>
