@@ -170,7 +170,7 @@ class Decoder(object):
 				logger.debug("Video clip FPS: {}".format(self.fps))
 
 				if play_audio and self.clip.audio:
-					buffersize = int(self.frame_interval*self.clip.audio.fps)+1
+					buffersize = int(self.frame_interval*self.clip.audio.fps)
 					self.audioformat = {
 						'nbytes':  	  	2,
 						'nchannels':	self.clip.audio.nchannels,
