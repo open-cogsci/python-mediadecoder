@@ -13,7 +13,7 @@ from mediadecoder.soundrenderers._base import SoundRenderer
 queue_timeout=0.01
 
 class SoundrendererSounddevice(SoundRenderer):
-	""" Uses pyaudio to play sound """
+	""" Uses python-sounddevice to play sound """
 	def __init__(self, audioformat, queue=None):
 		"""Constructor.
 		Creates a pyaudio sound renderer.

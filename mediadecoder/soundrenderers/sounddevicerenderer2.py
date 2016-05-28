@@ -1,10 +1,3 @@
-
-""" This is an alternative implementation of sounddevicerenderer, that doesn't use
-the callback functionality of sounddevice's OutputStream. The threading is done by
-python, instead of C (under the hood) by sounddevice. I haven't determined yet
-which method is better, so I am leaving them both in for now. """
-
-
 import threading
 import sounddevice as sd
 import logging
@@ -22,7 +15,13 @@ from mediadecoder.soundrenderers._base import SoundRenderer
 queue_timeout=0.01
 
 class SoundrendererSounddevice(threading.Thread, SoundRenderer):
-	""" Uses pyaudio to play sound """
+	""" Uses python-sounddevice to play sound. 
+
+	This is an alternative implementation of sounddevicerenderer, that doesn't use
+	the callback functionality of sounddevice's OutputStream. The threading is done by
+	python, instead of C (under the hood) by sounddevice. I haven't determined yet
+	which method is better, so I am leaving them both in for now. """
+	
 	def __init__(self, audioformat, queue=None):
 		"""Constructor.
 		Creates a pyaudio sound renderer.
