@@ -41,9 +41,10 @@ class SoundrendererPygame(threading.Thread, SoundRenderer):
 		fps 		= audioformat["fps"]
 		nchannels 	= audioformat["nchannels"]
 		nbytes   	= audioformat["nbytes"]
+		buffersize  = audioformat["buffersize"]
 
 		pygame.mixer.quit()
-		pygame.mixer.init(fps, -8 * nbytes, nchannels)
+		pygame.mixer.init(fps, -8 * nbytes, nchannels, buffersize)
 
 	def run(self):
 		""" Main thread function. """
@@ -51,6 +52,7 @@ class SoundrendererPygame(threading.Thread, SoundRenderer):
 			raise RuntimeError("Audio queue is not intialized.")
 
 		chunk = None
+		channel = None
 		self.keep_listening = True
 		while self.keep_listening:
 			if chunk is None:
@@ -60,12 +62,16 @@ class SoundrendererPygame(threading.Thread, SoundRenderer):
 				except Empty:
 					continue
 
-			if not hasattr(self,"channel"):
-				self.channel = chunk.play()
+			if channel is None:
+				channel = chunk.play()
 			else:
-				if not pygame.mixer.get_busy():	
-					self.channel.queue(chunk)
+				if not channel.get_queue():	
+					channel.queue(chunk)
 					chunk = None
+		
+		if not channel is None:
+			channel.stop()
+			pygame.mixer.quit()
 
 	def close_stream(self):
 		""" Cleanup (done by pygame.quit() in main loop) """

@@ -12,7 +12,6 @@ import numpy as np
 
 import mediadecoder # For the state constants
 from mediadecoder.decoder import Decoder 
-from mediadecoder.soundrenderers import *
 
 class VideoPlayer():
 	""" This is an example videoplayer that uses pygame+pyopengl to render a video.
@@ -132,10 +131,13 @@ class VideoPlayer():
 
 		if(self.decoder.audioformat):
 			if self.soundrenderer == "pygame":
+				from mediadecoder.soundrenderers import SoundrendererPygame
 				self.audio = SoundrendererPygame(self.decoder.audioformat)
 			elif self.soundrenderer == "pyaudio":
+				from mediadecoder.soundrenderers import SoundrendererPyAudio
 				self.audio = SoundrendererPyAudio(self.decoder.audioformat)
 			elif self.soundrenderer == "sounddevice":
+				from mediadecoder.soundrenderers import SoundrendererSounddevice
 				self.audio = SoundrendererSounddevice(self.decoder.audioformat)
 			self.decoder.set_audiorenderer(self.audio)
 

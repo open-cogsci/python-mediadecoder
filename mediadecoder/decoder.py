@@ -420,7 +420,7 @@ class Decoder(object):
 				# if the current one gives a problem
 				try:
 					start = self.audio_times.pop(0)
-					stop = self.audio_times[1]
+					stop = self.audio_times[0]
 				except IndexError:
 					logger.debug("Audio times could not be obtained")
 					time.sleep(0.02)
