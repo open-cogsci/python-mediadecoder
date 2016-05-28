@@ -171,9 +171,10 @@
 		<span class="n">fps</span> 		<span class="o">=</span> <span class="n">audioformat</span><span class="p">[</span><span class="s2">&quot;fps&quot;</span><span class="p">]</span>
 		<span class="n">nchannels</span> 	<span class="o">=</span> <span class="n">audioformat</span><span class="p">[</span><span class="s2">&quot;nchannels&quot;</span><span class="p">]</span>
 		<span class="n">nbytes</span>   	<span class="o">=</span> <span class="n">audioformat</span><span class="p">[</span><span class="s2">&quot;nbytes&quot;</span><span class="p">]</span>
+		<span class="n">buffersize</span>  <span class="o">=</span> <span class="n">audioformat</span><span class="p">[</span><span class="s2">&quot;buffersize&quot;</span><span class="p">]</span>
 
 		<span class="n">pygame</span><span class="o">.</span><span class="n">mixer</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
-		<span class="n">pygame</span><span class="o">.</span><span class="n">mixer</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">fps</span><span class="p">,</span> <span class="o">-</span><span class="mi">8</span> <span class="o">*</span> <span class="n">nbytes</span><span class="p">,</span> <span class="n">nchannels</span><span class="p">)</span></div>
+		<span class="n">pygame</span><span class="o">.</span><span class="n">mixer</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">fps</span><span class="p">,</span> <span class="o">-</span><span class="mi">8</span> <span class="o">*</span> <span class="n">nbytes</span><span class="p">,</span> <span class="n">nchannels</span><span class="p">,</span> <span class="n">buffersize</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SoundrendererPygame.run"><a class="viewcode-back" href="../../../api.html#mediadecoder.soundrenderers.pygamerenderer.SoundrendererPygame.run">[docs]</a>	<span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; Main thread function. &quot;&quot;&quot;</span>
@@ -181,6 +182,7 @@
 			<span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Audio queue is not intialized.&quot;</span><span class="p">)</span>
 
 		<span class="n">chunk</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="n">channel</span> <span class="o">=</span> <span class="bp">None</span>
 		<span class="bp">self</span><span class="o">.</span><span class="n">keep_listening</span> <span class="o">=</span> <span class="bp">True</span>
 		<span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">keep_listening</span><span class="p">:</span>
 			<span class="k">if</span> <span class="n">chunk</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -190,12 +192,16 @@
 				<span class="k">except</span> <span class="n">Empty</span><span class="p">:</span>
 					<span class="k">continue</span>
 
-			<span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;channel&quot;</span><span class="p">):</span>
-				<span class="bp">self</span><span class="o">.</span><span class="n">channel</span> <span class="o">=</span> <span class="n">chunk</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+			<span class="k">if</span> <span class="n">channel</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+				<span class="n">channel</span> <span class="o">=</span> <span class="n">chunk</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
 			<span class="k">else</span><span class="p">:</span>
-				<span class="k">if</span> <span class="ow">not</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mixer</span><span class="o">.</span><span class="n">get_busy</span><span class="p">():</span>	
-					<span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
-					<span class="n">chunk</span> <span class="o">=</span> <span class="bp">None</span></div>
+				<span class="k">if</span> <span class="ow">not</span> <span class="n">channel</span><span class="o">.</span><span class="n">get_queue</span><span class="p">():</span>	
+					<span class="n">channel</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+					<span class="n">chunk</span> <span class="o">=</span> <span class="bp">None</span>
+		
+		<span class="k">if</span> <span class="ow">not</span> <span class="n">channel</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+			<span class="n">channel</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+			<span class="n">pygame</span><span class="o">.</span><span class="n">mixer</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="SoundrendererPygame.close_stream"><a class="viewcode-back" href="../../../api.html#mediadecoder.soundrenderers.pygamerenderer.SoundrendererPygame.close_stream">[docs]</a>	<span class="k">def</span> <span class="nf">close_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot; Cleanup (done by pygame.quit() in main loop) &quot;&quot;&quot;</span>

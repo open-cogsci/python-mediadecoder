@@ -142,7 +142,6 @@
 
 <span class="kn">import</span> <span class="nn">mediadecoder</span> <span class="c1"># For the state constants</span>
 <span class="kn">from</span> <span class="nn">mediadecoder.decoder</span> <span class="kn">import</span> <span class="n">Decoder</span> 
-<span class="kn">from</span> <span class="nn">mediadecoder.soundrenderers</span> <span class="kn">import</span> <span class="o">*</span>
 
 <div class="viewcode-block" id="VideoPlayer"><a class="viewcode-back" href="../api.html#play.VideoPlayer">[docs]</a><span class="k">class</span> <span class="nc">VideoPlayer</span><span class="p">():</span>
 	<span class="sd">&quot;&quot;&quot; This is an example videoplayer that uses pygame+pyopengl to render a video.</span>
@@ -262,9 +261,14 @@
 
 		<span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">audioformat</span><span class="p">):</span>
 			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">soundrenderer</span> <span class="o">==</span> <span class="s2">&quot;pygame&quot;</span><span class="p">:</span>
+				<span class="kn">from</span> <span class="nn">mediadecoder.soundrenderers</span> <span class="kn">import</span> <span class="n">SoundrendererPygame</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">audio</span> <span class="o">=</span> <span class="n">SoundrendererPygame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">audioformat</span><span class="p">)</span>
-			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">soundrenderer</span> <span class="o">==</span> <span class="s2">&quot;pyaudio&quot;</span><span class="p">:</span>
+			<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">soundrenderer</span> <span class="o">==</span> <span class="s2">&quot;pyaudio&quot;</span><span class="p">:</span>
+				<span class="kn">from</span> <span class="nn">mediadecoder.soundrenderers</span> <span class="kn">import</span> <span class="n">SoundrendererPyAudio</span>
 				<span class="bp">self</span><span class="o">.</span><span class="n">audio</span> <span class="o">=</span> <span class="n">SoundrendererPyAudio</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">audioformat</span><span class="p">)</span>
+			<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">soundrenderer</span> <span class="o">==</span> <span class="s2">&quot;sounddevice&quot;</span><span class="p">:</span>
+				<span class="kn">from</span> <span class="nn">mediadecoder.soundrenderers</span> <span class="kn">import</span> <span class="n">SoundrendererSounddevice</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">audio</span> <span class="o">=</span> <span class="n">SoundrendererSounddevice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">audioformat</span><span class="p">)</span>
 			<span class="bp">self</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">set_audiorenderer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">audio</span><span class="p">)</span></div>
 
 	<span class="k">def</span> <span class="nf">__textureSetup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -419,8 +423,8 @@
 	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-l&quot;</span><span class="p">,</span> <span class="s2">&quot;--loop&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;loop the video&quot;</span><span class="p">,</span> 
 		<span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-s&quot;</span><span class="p">,</span> <span class="s2">&quot;--soundrenderer&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;the backend that should &quot;</span>
-		<span class="s2">&quot; render the sound (default: pyaudio)&quot;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pygame&quot;</span><span class="p">,</span><span class="s2">&quot;pyaudio&quot;</span><span class="p">],</span> 
-		<span class="n">default</span><span class="o">=</span><span class="s2">&quot;pyaudio&quot;</span><span class="p">)</span>
+		<span class="s2">&quot; render the sound (default: pyaudio)&quot;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pygame&quot;</span><span class="p">,</span><span class="s2">&quot;pyaudio&quot;</span><span class="p">,</span>
+		<span class="s2">&quot;sounddevice&quot;</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;pyaudio&quot;</span><span class="p">)</span>
 	<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-r&quot;</span><span class="p">,</span> <span class="s2">&quot;--resolution&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The resolution of the video.&quot;</span>
 		<span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Specify as &lt;width&gt;x&lt;height&gt; (default: 1024x768)&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;1024x768&quot;</span><span class="p">)</span>
 

@@ -33,7 +33,8 @@ Sound renderers
 ~~~~~~~~~~~~~~~
 
 This module contains objects that handle the audio frames supplied by Decoder.
-At the moment, the only one that is stable is the PyAudioSoundRenderer.
+At the moment, the only ones that are stable are the PyAudioSoundRenderer and
+SounddeviceSoundrenderer (which both are bindings to PortAudio.
 
 Pygame
 ^^^^^^
@@ -46,5 +47,12 @@ Pyaudio
 ^^^^^^^
 
 .. automodule:: mediadecoder.soundrenderers.pyaudiorenderer
+	:members:
+	:special-members: __init__
+
+Sounddevice
+^^^^^^^^^^^
+
+.. automodule:: mediadecoder.soundrenderers.sounddevicerenderer
 	:members:
 	:special-members: __init__

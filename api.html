@@ -90,6 +90,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#sound-renderers">Sound renderers</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#module-mediadecoder.soundrenderers.pygamerenderer">Pygame</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-mediadecoder.soundrenderers.pyaudiorenderer">Pyaudio</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-mediadecoder.soundrenderers.sounddevicerenderer">Sounddevice</a></li>
 </ul>
 </li>
 </ul>
@@ -709,7 +710,8 @@ Uses a separate thread to handle the timing functionalities.</p>
 <div class="section" id="sound-renderers">
 <h3>Sound renderers<a class="headerlink" href="#sound-renderers" title="Permalink to this headline">¶</a></h3>
 <p>This module contains objects that handle the audio frames supplied by Decoder.
-At the moment, the only one that is stable is the PyAudioSoundRenderer.</p>
+At the moment, the only ones that are stable are the PyAudioSoundRenderer and
+SounddeviceSoundrenderer (which both are bindings to PortAudio.</p>
 <div class="section" id="module-mediadecoder.soundrenderers.pygamerenderer">
 <span id="pygame"></span><h4>Pygame<a class="headerlink" href="#module-mediadecoder.soundrenderers.pygamerenderer" title="Permalink to this headline">¶</a></h4>
 <dl class="class">
@@ -833,6 +835,75 @@ audio frames are placed by the decoder.</p>
 <dl class="method">
 <dt id="mediadecoder.soundrenderers.pyaudiorenderer.SoundrendererPyAudio.start">
 <code class="descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/soundrenderers/pyaudiorenderer.html#SoundrendererPyAudio.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.soundrenderers.pyaudiorenderer.SoundrendererPyAudio.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the stream.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-mediadecoder.soundrenderers.sounddevicerenderer">
+<span id="sounddevice"></span><h4>Sounddevice<a class="headerlink" href="#module-mediadecoder.soundrenderers.sounddevicerenderer" title="Permalink to this headline">¶</a></h4>
+<dl class="class">
+<dt id="mediadecoder.soundrenderers.sounddevicerenderer.SoundrendererSounddevice">
+<em class="property">class </em><code class="descclassname">mediadecoder.soundrenderers.sounddevicerenderer.</code><code class="descname">SoundrendererSounddevice</code><span class="sig-paren">(</span><em>audioformat</em>, <em>queue=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/soundrenderers/sounddevicerenderer.html#SoundrendererSounddevice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.soundrenderers.sounddevicerenderer.SoundrendererSounddevice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses python-sounddevice to play sound</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#mediadecoder.soundrenderers.sounddevicerenderer.SoundrendererSounddevice.close_stream" title="mediadecoder.soundrenderers.sounddevicerenderer.SoundrendererSounddevice.close_stream"><code class="xref py py-obj docutils literal"><span class="pre">close_stream</span></code></a>()</td>
+<td>Closes the stream.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#mediadecoder.soundrenderers.sounddevicerenderer.SoundrendererSounddevice.get_frame" title="mediadecoder.soundrenderers.sounddevicerenderer.SoundrendererSounddevice.get_frame"><code class="xref py py-obj docutils literal"><span class="pre">get_frame</span></code></a>(outdata,&nbsp;frames,&nbsp;timedata,&nbsp;status)</td>
+<td>Callback function for the audio stream.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#mediadecoder.soundrenderers.sounddevicerenderer.SoundrendererSounddevice.start" title="mediadecoder.soundrenderers.sounddevicerenderer.SoundrendererSounddevice.start"><code class="xref py py-obj docutils literal"><span class="pre">start</span></code></a>()</td>
+<td>Initializes the stream.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="mediadecoder.soundrenderers.sounddevicerenderer.SoundrendererSounddevice.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>audioformat</em>, <em>queue=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/soundrenderers/sounddevicerenderer.html#SoundrendererSounddevice.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.soundrenderers.sounddevicerenderer.SoundrendererSounddevice.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.
+Creates a pyaudio sound renderer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>audioformat</strong> : dict</p>
+<blockquote>
+<div><p>A dictionary containing the properties of the audiostream</p>
+</div></blockquote>
+<p><strong>queue</strong> : Queue.queue</p>
+<blockquote class="last">
+<div><p>A queue object which serves as a buffer on which the individual
+audio frames are placed by the decoder.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediadecoder.soundrenderers.sounddevicerenderer.SoundrendererSounddevice.close_stream">
+<code class="descname">close_stream</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/soundrenderers/sounddevicerenderer.html#SoundrendererSounddevice.close_stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.soundrenderers.sounddevicerenderer.SoundrendererSounddevice.close_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes the stream. Performs cleanup.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediadecoder.soundrenderers.sounddevicerenderer.SoundrendererSounddevice.get_frame">
+<code class="descname">get_frame</code><span class="sig-paren">(</span><em>outdata</em>, <em>frames</em>, <em>timedata</em>, <em>status</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/soundrenderers/sounddevicerenderer.html#SoundrendererSounddevice.get_frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.soundrenderers.sounddevicerenderer.SoundrendererSounddevice.get_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback function for the audio stream. Don&#8217;t use directly.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mediadecoder.soundrenderers.sounddevicerenderer.SoundrendererSounddevice.start">
+<code class="descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/mediadecoder/soundrenderers/sounddevicerenderer.html#SoundrendererSounddevice.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mediadecoder.soundrenderers.sounddevicerenderer.SoundrendererSounddevice.start" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the stream.</p>
 </dd></dl>
 
