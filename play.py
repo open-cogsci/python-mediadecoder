@@ -134,10 +134,10 @@ class VideoPlayer():
 				from mediadecoder.soundrenderers import SoundrendererPygame
 				self.audio = SoundrendererPygame(self.decoder.audioformat)
 			elif self.soundrenderer == "pyaudio":
-				from mediadecoder.soundrenderers import SoundrendererPyAudio
+				from mediadecoder.soundrenderers.pyaudiorenderer import SoundrendererPyAudio
 				self.audio = SoundrendererPyAudio(self.decoder.audioformat)
 			elif self.soundrenderer == "sounddevice":
-				from mediadecoder.soundrenderers import SoundrendererSounddevice
+				from mediadecoder.soundrenderers.sounddevicerenderer import SoundrendererSounddevice
 				self.audio = SoundrendererSounddevice(self.decoder.audioformat)
 			self.decoder.set_audiorenderer(self.audio)
 
@@ -293,8 +293,8 @@ if __name__ == '__main__':
 	parser.add_argument("-l", "--loop", help="loop the video", 
 		action="store_true", default=False)
 	parser.add_argument("-s", "--soundrenderer", help="the backend that should "
-		" render the sound (default: pyaudio)", choices=["pygame","pyaudio",
-		"sounddevice"], default="pyaudio")
+		" render the sound (default: sounddevice)", choices=["pygame","pyaudio",
+		"sounddevice"], default="sounddevice")
 	parser.add_argument("-r", "--resolution", help="The resolution of the video."
 		"\nSpecify as <width>x<height> (default: 1024x768)", default="1024x768")
 

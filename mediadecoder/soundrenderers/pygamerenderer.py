@@ -1,3 +1,4 @@
+import time
 import threading
 import pygame
 
@@ -68,6 +69,7 @@ class SoundrendererPygame(threading.Thread, SoundRenderer):
 				if not channel.get_queue():	
 					channel.queue(chunk)
 					chunk = None
+			time.sleep(0.005)
 		
 		if not channel is None:
 			channel.stop()

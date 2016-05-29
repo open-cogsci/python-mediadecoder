@@ -1,5 +1,6 @@
 import time
 import pyaudio
+import threading
 
 try:
 	# Python 3
@@ -12,7 +13,7 @@ from mediadecoder.soundrenderers._base import SoundRenderer
 
 queue_timeout=0.01
 
-class SoundrendererPyAudio(SoundRenderer):
+class SoundrendererPyAudio(threading.Thread, SoundRenderer):
 	""" Uses pyaudio to play sound """
 	def __init__(self, audioformat, queue=None):
 		"""Constructor.
@@ -29,6 +30,8 @@ class SoundrendererPyAudio(SoundRenderer):
 		if pyaudio is None:
 			raise RuntimeError("Pyaudio sound renderer is not available")
 
+		super(SoundrendererPyAudio, self).__init__()
+
 		if not queue is None:
 			self.queue = queue
 
@@ -36,32 +39,31 @@ class SoundrendererPyAudio(SoundRenderer):
 		self.stream = self.pa.open(
 			channels  	= audioformat["nchannels"],
 			rate 		= audioformat["fps"],
-			frames_per_buffer = audioformat['buffersize'],
+			# frames_per_buffer = audioformat['buffersize'],
 			format 	= pyaudio.get_format_from_width(audioformat["nbytes"]),
 			output 	= True,
-			stream_callback=self.get_frame
 		)
-		self.keep_listening = True
 
-	def get_frame(self, in_data, frame_count, time_info, status):
-		""" Callback function for the pyaudio stream. Don't use directly. """
-		while self.keep_listening:
-			try:
-				frame = self.queue.get(False, timeout=queue_timeout)
-				return (frame, pyaudio.paContinue)
-			except Empty:
-				pass
-		return (None, pyaudio.paComplete)
-
-	def start(self):
+	def run(self):
 		""" Initializes the stream. """
 		if not hasattr(self, 'queue'):
 			raise RuntimeError("Audio queue is not intialized.")
+
 		self.stream.start_stream()
+		self.keep_listening = True	
+		
+		while self.keep_listening:
+			try:
+				frame = self.queue.get(False, timeout=queue_timeout)
+				self.stream.write(frame)
+			except Empty:
+				continue
+			time.sleep(0.01)
+
+		self.stream.stop_stream()
+		self.stream.close()
+		self.pa.terminate()
 
 	def close_stream(self):
 		""" Closes the stream. Performs cleanup. """
 		self.keep_listening = False
-		self.stream.stop_stream()
-		self.stream.close()
-		self.pa.terminate()

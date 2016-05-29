@@ -415,41 +415,44 @@ class Decoder(object):
 
 		while self.status in [PLAYING,PAUSED]:
 			# Retrieve audiochunk
-			if self.status == PLAYING and new_audioframe is None:
-				# Get a new frame from the audiostream, skip to the next one
-				# if the current one gives a problem
-				try:
-					start = self.audio_times.pop(0)
-					stop = self.audio_times[0]
-				except IndexError:
-					logger.debug("Audio times could not be obtained")
-					time.sleep(0.02)
-					continue
+			if self.status == PLAYING:
+				if new_audioframe is None:
+					# Get a new frame from the audiostream, skip to the next one
+					# if the current one gives a problem
+					try:
+						start = self.audio_times.pop(0)
+						stop = self.audio_times[0]
+					except IndexError:
+						logger.debug("Audio times could not be obtained")
+						time.sleep(0.02)
+						continue
 
-				# Get the frame numbers to extract from the audio stream.
-				chunk = (1.0/self.audioformat['fps'])*np.arange(start, stop)
+					# Get the frame numbers to extract from the audio stream.
+					chunk = (1.0/self.audioformat['fps'])*np.arange(start, stop)
 
-				try:
-					# Extract the frames from the audio stream. Does not always,
-					# succeed (e.g. with bad streams missing frames), so make
-					# sure this doesn't crash the whole program.
-					new_audioframe = self.clip.audio.to_soundarray(
-						tt = chunk,
-						buffersize = self.frame_interval*self.clip.audio.fps,
-						quantize=True
-					)
-				except OSError as e:
-					logger.warning("Sound decoding error: {}".format(e))
-					new_audioframe = None
-			# Put audioframe in buffer/queue for soundrenderer to pick up. If
-			# the queue is full, try again after a timeout (this allows to check
-			# if the status is still PLAYING after a pause.)
-			if not new_audioframe is None:
-				try:
-					self.audioqueue.put(new_audioframe, timeout=.05)
-					new_audioframe = None
-				except Full:
-					pass
+					try:
+						# Extract the frames from the audio stream. Does not always,
+						# succeed (e.g. with bad streams missing frames), so make
+						# sure this doesn't crash the whole program.
+						new_audioframe = self.clip.audio.to_soundarray(
+							tt = chunk,
+							buffersize = self.frame_interval*self.clip.audio.fps,
+							quantize=True
+						)
+					except OSError as e:
+						logger.warning("Sound decoding error: {}".format(e))
+						new_audioframe = None
+				# Put audioframe in buffer/queue for soundrenderer to pick up. If
+				# the queue is full, try again after a timeout (this allows to check
+				# if the status is still PLAYING after a pause.)
+				if not new_audioframe is None:
+					try:
+						self.audioqueue.put(new_audioframe, timeout=.05)
+						new_audioframe = None
+					except Full:
+						pass
+			
+			time.sleep(0.005)
 		
 		logger.debug("Stopped audio rendering thread.")
 
