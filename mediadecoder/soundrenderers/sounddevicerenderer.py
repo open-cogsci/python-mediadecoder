@@ -40,6 +40,10 @@ class SoundrendererSounddevice(SoundRenderer):
 
 	def get_frame(self, outdata, frames, timedata, status):
 		""" Callback function for the audio stream. Don't use directly. """
+
+		if not self.keep_listening:
+			raise sd.CallbackStop
+		
 		try:
 			chunk = self.queue.get_nowait()
 			# Check if the chunk contains the expected number of frames
@@ -60,5 +64,5 @@ class SoundrendererSounddevice(SoundRenderer):
 	def close_stream(self):
 		""" Closes the stream. Performs cleanup. """
 		self.keep_listening = False
-		self.stream.stop
+		self.stream.stop()
 		self.stream.close()
