@@ -60,5 +60,5 @@ class SoundrendererSounddevice(SoundRenderer):
 	def close_stream(self):
 		""" Closes the stream. Performs cleanup. """
 		self.keep_listening = False
-		self.stream.stop
+		self.stream.stop()
 		self.stream.close()
