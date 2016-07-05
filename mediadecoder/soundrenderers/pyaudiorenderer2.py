@@ -39,7 +39,7 @@ class SoundrendererPyAudio(threading.Thread, SoundRenderer):
 		self.stream = self.pa.open(
 			channels  	= audioformat["nchannels"],
 			rate 		= audioformat["fps"],
-			frames_per_buffer = audioformat['buffersize'],
+			#frames_per_buffer = audioformat['buffersize']/2,
 			format 	= pyaudio.get_format_from_width(audioformat["nbytes"]),
 			output 	= True,
 		)

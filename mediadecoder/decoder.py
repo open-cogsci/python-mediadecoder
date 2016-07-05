@@ -7,7 +7,6 @@ from __future__ import unicode_literals
 # MoviePy
 try:
 	from moviepy.video.io.VideoFileClip import VideoFileClip
-	from moviepy.tools import cvsecs
 	import numpy as np
 except ImportError as e:
 	print("""Error importing dependencies:
@@ -125,6 +124,8 @@ class Decoder(object):
 
 		self.status = UNINITIALIZED
 		self.clock.reset()
+
+		self.loop_count = 0
 
 	def load_media(self, mediafile, play_audio=True):
 		""" Loads a media file to decode. 
@@ -323,7 +324,8 @@ class Decoder(object):
 		"""
 		# Pause the stream
 		self.pause()
-		self.clock.time = value
+		# Make sure the movie starts at 1s as 0s gives trouble.
+		self.clock.time = max(0.5, value)
 		logger.debug("Seeking to {} seconds; frame {}".format(self.clock.time, 
 			self.clock.current_frame))
 		if self.audioformat:
@@ -334,7 +336,7 @@ class Decoder(object):
 	def rewind(self):
 		""" Rewinds the video to the beginning.
 		Convenience function simply calling seek(0). """
-		self.seek(0)
+		self.seek(0.5)
 
 	def __calculate_audio_frames(self):
 		""" Aligns audio with video. 
@@ -374,7 +376,8 @@ class Decoder(object):
 				if self.loop:
 					logger.debug("Looping: restarting stream")
 					# Seek to the start
-					self.seek(0)
+					self.rewind()
+					self.loop_count += 1
 				else:
 					# End of stream has been reached
 					self.status = EOS

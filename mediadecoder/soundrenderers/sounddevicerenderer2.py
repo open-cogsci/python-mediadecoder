@@ -36,6 +36,7 @@ class SoundrendererSounddevice(threading.Thread, SoundRenderer):
 		global sd
 		import sounddevice as sd
 
+		# Init thread
 		super(SoundrendererSounddevice, self).__init__()
 
 		if not queue is None:
