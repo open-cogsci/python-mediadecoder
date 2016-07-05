@@ -1,6 +1,3 @@
-import time
-import sounddevice as sd
-
 try:
 	# Python 3
 	from queue import Queue, Empty
@@ -26,6 +23,9 @@ class SoundrendererSounddevice(SoundRenderer):
 			A queue object which serves as a buffer on which the individual
 			audio frames are placed by the decoder.
 		"""
+		global sd
+		import sounddevice as sd
+
 		if not queue is None:
 			self.queue = queue
 

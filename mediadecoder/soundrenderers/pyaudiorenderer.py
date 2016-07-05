@@ -1,6 +1,3 @@
-import time
-import pyaudio
-
 try:
 	# Python 3
 	from queue import Queue, Empty
@@ -26,8 +23,9 @@ class SoundrendererPyAudio(SoundRenderer):
 			A queue object which serves as a buffer on which the individual
 			audio frames are placed by the decoder.
 		"""
-		if pyaudio is None:
-			raise RuntimeError("Pyaudio sound renderer is not available")
+		
+		global pyaudio
+		import pyaudio
 
 		if not queue is None:
 			self.queue = queue

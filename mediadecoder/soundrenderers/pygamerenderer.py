@@ -1,10 +1,6 @@
 import time
 import threading
-import pygame
-
 import warnings
-warnings.warn("Pygame sound renderer is not working correctly yet. Using the "
-	"pyaudio renderer is recommended for now.")
 
 try:
 	# Python 3
@@ -31,10 +27,14 @@ class SoundrendererPygame(threading.Thread, SoundRenderer):
 			A queue object which serves as a buffer on which the individual
 			audio frames are placed by the decoder.
 		"""
+		global pygame
+		import pygame
+
+		# Init thread
 		super(SoundrendererPygame, self).__init__()
 
-		if pygame is None:
-			raise RuntimeError("Pygame sound renderer is not available")
+		warnings.warn("Pygame sound renderer is not working correctly yet. Using the "
+			"pyaudio renderer is recommended for now.")
 
 		if not queue is None:
 			self.queue = queue
@@ -71,7 +71,7 @@ class SoundrendererPygame(threading.Thread, SoundRenderer):
 					chunk = None
 			time.sleep(0.005)
 		
-		if not channel is None:
+		if not channel is None and pygame.mixer.get_init():
 			channel.stop()
 			pygame.mixer.quit()
 

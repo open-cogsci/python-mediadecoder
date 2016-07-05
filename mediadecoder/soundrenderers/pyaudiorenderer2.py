@@ -1,5 +1,4 @@
 import time
-import pyaudio
 import threading
 
 try:
@@ -27,9 +26,10 @@ class SoundrendererPyAudio(threading.Thread, SoundRenderer):
 			A queue object which serves as a buffer on which the individual
 			audio frames are placed by the decoder.
 		"""
-		if pyaudio is None:
-			raise RuntimeError("Pyaudio sound renderer is not available")
+		global pyaudio
+		import pyaudio
 
+		# Init thread
 		super(SoundrendererPyAudio, self).__init__()
 
 		if not queue is None:
@@ -39,7 +39,7 @@ class SoundrendererPyAudio(threading.Thread, SoundRenderer):
 		self.stream = self.pa.open(
 			channels  	= audioformat["nchannels"],
 			rate 		= audioformat["fps"],
-			# frames_per_buffer = audioformat['buffersize'],
+			frames_per_buffer = audioformat['buffersize'],
 			format 	= pyaudio.get_format_from_width(audioformat["nbytes"]),
 			output 	= True,
 		)
