@@ -9,6 +9,10 @@ try:
 	from moviepy.video.io.VideoFileClip import VideoFileClip
 	import numpy as np
 except ImportError as e:
+	try:
+		msg = str(e)
+	except:
+		msg = 'Failed to decode Exception'
 	print("""Error importing dependencies:
 {0}
 
@@ -18,7 +22,7 @@ This module depends on the following packages
 - ImageIO
 - Numpy
 
-Please make sure that they are installed.""".format(e))
+Please make sure that they are installed.""".format(msg))
 
 # Other modules
 import os
@@ -462,5 +466,3 @@ class Decoder(object):
 	def __repr__(self):
 		""" Create a string representation for when print() is called. """
 		return "Decoder [file loaded: {0}]".format(self.loaded_file)
-
-
