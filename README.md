@@ -1,4 +1,4 @@
-#Movie decoder for Python based on MoviePy
+# Movie decoder for Python based on MoviePy
 
 This library allows you to decode and render movies in Python. It is based on the (rather excellent) [MoviePy](http://zulko.github.io/moviepy/) module created by Zulko, which offers a convenient Python interface to ffmpeg. This library should hence be able to decode any format that ffmpeg supports. If ffmpeg is not found to be installed, moviepy will download it for you on first use, which may take some time (keep an eye on that terminal/command prompt to see the download progress).
 
