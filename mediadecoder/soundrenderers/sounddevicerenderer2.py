@@ -1,5 +1,4 @@
 import threading
-import sounddevice as sd
 import logging
 logger = logging.getLogger(__name__)
 
@@ -34,6 +33,10 @@ class SoundrendererSounddevice(threading.Thread, SoundRenderer):
 			A queue object which serves as a buffer on which the individual
 			audio frames are placed by the decoder.
 		"""
+		global sd
+		import sounddevice as sd
+
+		# Init thread
 		super(SoundrendererSounddevice, self).__init__()
 
 		if not queue is None:
