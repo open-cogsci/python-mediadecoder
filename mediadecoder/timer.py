@@ -8,7 +8,11 @@ import time
 import threading
 
 from mediadecoder.states import *
-from moviepy.tools import cvsecs
+try:
+    from moviepy.tools import cvsecs  # MoviePy < 2.0.0
+except ImportError:
+    from moviepy.tools import convert_to_seconds as cvsecs  # MoviePy >= 2.0.0
+
 
 class Timer(object):
 	""" Timer serves as a video clock that is used to determine which frame needs to be

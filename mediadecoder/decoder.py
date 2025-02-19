@@ -7,7 +7,6 @@ from __future__ import unicode_literals
 # MoviePy
 try:
 	from moviepy.video.io.VideoFileClip import VideoFileClip
-	from moviepy.tools import cvsecs
 	import numpy as np
 except ImportError as e:
 	print("""Error importing dependencies:
