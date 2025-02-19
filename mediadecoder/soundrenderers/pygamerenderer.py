@@ -33,8 +33,8 @@ class SoundrendererPygame(threading.Thread, SoundRenderer):
 		# Init thread
 		super(SoundrendererPygame, self).__init__()
 
-		warnings.warn("Pygame sound renderer is not working correctly yet. Using the "
-			"pyaudio renderer is recommended for now.")
+		#warnings.warn("Pygame sound renderer is not working correctly yet. Using the "
+			#"pyaudio renderer is recommended for now.")
 
 		if not queue is None:
 			self.queue = queue
@@ -44,11 +44,11 @@ class SoundrendererPygame(threading.Thread, SoundRenderer):
 		nbytes   	= audioformat["nbytes"]
 		buffersize  = audioformat["buffersize"]
 
-        if pygame.mixer.get_init() is None:
-            pygame.mixer.init(fps, -8 * nbytes, nchannels, buffersize)
-            self._own_mixer = True
-        else:
-            self._own_mixer = False
+		if pygame.mixer.get_init() is None:
+			pygame.mixer.init(fps, -8 * nbytes, nchannels, buffersize)
+			self._own_mixer = True
+		else:
+			self._own_mixer = False
 
 	def run(self):
 		""" Main thread function. """
@@ -76,8 +76,8 @@ class SoundrendererPygame(threading.Thread, SoundRenderer):
 		
 		if not channel is None and pygame.mixer.get_init():
 			channel.stop()
-            if self._own_mixer:
-                pygame.mixer.quit()
+			if self._own_mixer:
+				pygame.mixer.quit()
 
 	def close_stream(self):
 		""" Cleanup (done by pygame.quit() in main loop) """

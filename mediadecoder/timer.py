@@ -9,9 +9,9 @@ import threading
 
 from mediadecoder.states import *
 try:
-    from moviepy.tools import cvsecs  # MoviePy < 2.0.0
+	from moviepy.tools import cvsecs  # MoviePy < 2.0.0
 except ImportError:
-    from moviepy.tools import convert_to_seconds as cvsecs  # MoviePy >= 2.0.0
+	from moviepy.tools import convert_to_seconds as cvsecs  # MoviePy >= 2.0.0
 
 
 class Timer(object):

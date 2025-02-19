@@ -13,12 +13,17 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
+import os
+
 from setuptools import setup, find_packages
-import mediadecoder
+
+path = os.path.dirname("__file__")
+with open(os.path.join(path, "mediadecoder", "__init__.py")) as f:
+	exec(f.readline().strip())
 
 setup(
 	name='mediadecoder',
-	version=mediadecoder.__version__,
+	version=__version__,
 	description='Moviepy based media decoding library',
 	author='Daniel Schreij',
 	author_email='dschreij@gmail.com',
