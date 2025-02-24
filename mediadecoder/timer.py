@@ -63,7 +63,7 @@ class Timer(object):
 	def start(self):
 		""" Starts the clock from 0. 
 		Uses a separate thread to handle the timing functionalities. """
-		if not hasattr(self,"thread") or not self.thread.isAlive():
+		if not hasattr(self,"thread") or not self.thread.is_alive():
 			self.thread = threading.Thread(target=self.__run)
 			self.status = RUNNING
 			self.reset()
