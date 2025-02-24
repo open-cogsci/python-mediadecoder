@@ -268,7 +268,7 @@ class Decoder(object):
 
 		self.last_frame_no = 0
 
-		if not hasattr(self,"renderloop") or not self.renderloop.isAlive():
+		if not hasattr(self,"renderloop") or not self.renderloop.is_alive():
 			if self.audioformat:
 				# Chop the total stream into separate audio chunks that are the
 				# lenght of a video frame (this way the index of each chunk 
