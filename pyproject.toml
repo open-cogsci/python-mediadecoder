@@ -1,0 +1,22 @@
+[build-system]
+requires = ["flit_core >=3.4"]
+build-backend = "flit_core.buildapi"
+[project]
+name = "mediadecoder"
+authors = [
+    {name = "Daniel Schreij", email = "dschreij@gmail.com"},
+    {name = "Sebastiaan Mathôt", email = "s.mathot@cogsci.nl"}
+]
+readme = "README.md"
+license = {file = "copyright"}
+requires-python = ">=3.10"
+dynamic = ["version", "description"]
+dependencies = [
+    "moviepy",
+    "numpy"
+]
+keywords = ["media", "movie", "playback"]
+[tool.flit.sdist]
+exclude = ["docs"]
+[project.urls]
+Source = "https://github.com/open-cogsci/python-mediadecoder"
