@@ -10,7 +10,7 @@ except:
     # Python 2
     from Queue import Queue, Empty
 
-from mediadecoder.soundrenderers._base import SoundRenderer
+from ._base import SoundRenderer
 
 queue_timeout = 0.01
 

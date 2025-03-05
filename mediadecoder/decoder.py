@@ -42,9 +42,9 @@ except:
     from Queue import Queue, Full
 queue_length = 3
 
-from mediadecoder.states import *
-from mediadecoder.timer import Timer
-from mediadecoder.soundrenderers._base import SoundRenderer
+from .states import *
+from .timer import Timer
+from .soundrenderers._base import SoundRenderer
 
 
 class Decoder(object):

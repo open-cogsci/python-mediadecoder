@@ -1,9 +1,11 @@
-__version__ = "0.1.5"
+"""Media-decoding library based on MoviePy"""
+
+__version__ = "0.2.0"
 __author__ = "Daniel Schreij"
 __license__ = "MIT"
 
-from mediadecoder.states import *
-from mediadecoder.decoder import Decoder
-from mediadecoder.timer import Timer
+from .states import *
+from .decoder import Decoder
+from .timer import Timer
 
 __all__ = ["Decoder", "Timer"]

@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 import time
 import threading
 
-from mediadecoder.states import *
+from .states import *
 
 try:
     from moviepy.tools import cvsecs  # MoviePy < 2.0.0
