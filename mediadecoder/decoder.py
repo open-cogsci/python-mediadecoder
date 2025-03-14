@@ -52,7 +52,8 @@ class Decoder(object):
     be passed a callback function to which decoded video frames should be passed.
     """
 
-    def __init__(self, mediafile=None, videorenderfunc=None, play_audio=True):
+    def __init__(self, mediafile=None, videorenderfunc=None, play_audio=True,
+                 audio_fps=44100, audio_nbytes=2):
         """
 		Constructor.
 
@@ -68,30 +69,36 @@ class Decoder(object):
 				- frame (numpy.ndarray): the videoframe to be rendered
 		play_audio : bool, optional
 			Whether audio of the clip should be played.
+        audio_fps : int, optional
+            The requested sample rate of the audio stream (default=44100).
+        audio_nbytes : int, optional
+            The number of bytes to encode the audio with: 1 for 8bit audio,
+            2 for 16bit audio, 4 for 32bit audio (default=2).
+
 		"""
         # Create an internal timer
-        self.clock = Timer()
+        self._clock = Timer()
 
         # Load a video file if specified, but allow users to do this later
         # by initializing all variables to None
-        if not self.load_media(mediafile, play_audio):
-            self.reset()
+        self.reset()
+        self.load_media(mediafile, play_audio, audio_fps, audio_nbytes)
 
         # Set callback function if set
         self.set_videoframerender_callback(videorenderfunc)
 
         # Store instance variables
-        self.play_audio = play_audio
+        self._play_audio = play_audio
 
     @property
     def frame_interval(self):
-        """Duration in seconds of a single frame."""
-        return self.clock.frame_interval
+        """Duration in seconds of a single video frame."""
+        return self._clock.frame_interval
 
     @property
     def current_frame_no(self):
         """Current frame_no of video."""
-        return self.clock.current_frame
+        return self._clock.current_frame
 
     @property
     def current_videoframe(self):
@@ -101,7 +108,7 @@ class Decoder(object):
     @property
     def current_playtime(self):
         """Clocks current runtime in seconds."""
-        return self.clock.time
+        return self._clock.time
 
     @property
     def loop(self):
@@ -122,20 +129,97 @@ class Decoder(object):
             raise TypeError("can only be True or False")
         self._loop = value
 
+    @property
+    def clip(self):
+        """Currently loaded media clip."""
+        return self._clip
+
+    @clip.setter
+    def clip(self, value):
+        """Currently loaded Moviepy VideoFileClip.
+
+        Parameters
+        ----------
+
+        value : moviepy.video.io.VideoFileClip
+            the clip
+
+        """
+
+        self._clip = value
+
+        ## Timing variables
+        # Clip duration
+        self._clock.max_duration = self.clip.duration
+        logger.debug("Video clip duration: {}s".format(self.clip.duration))
+
+        # Frames per second of clip
+        self._clock.fps = self.clip.fps
+        logger.debug("Video clip FPS: {}".format(self.clip.fps))
+
+        if self.clip.audio:
+            logger.debug("Audio loaded: \n{}".format(self.audioformat))
+            logger.debug(
+                "Creating audio buffer of length:  {}".format(queue_length)
+            )
+            self.audioqueue = Queue(queue_length)
+
+        self._status = READY
+
+    @property
+    def loaded_file(self):
+        """Name of loaded media file."""
+        if self.clip is not None:
+            return os.path.split(self.clip.filename)[1]
+
+    @property
+    def fps(self):
+        """Video frames per second."""
+        if self.clip is not None:
+            return self.clip.fps
+
+    @property
+    def duration(self):
+        """Total duration in seconds."""
+        if self.clip is not None:
+            return self.clip.duration
+
+    @property
+    def status(self):
+        """Decoder status."""
+        return self._status
+
+    @property
+    def audioformat(self):
+        """Audio stream parameters."""
+        if self.clip is not None and self._play_audio and self.clip.audio:
+            if self._8bit_hack_applied:  # see https://github.com/Zulko/moviepy/issues/2397
+                nbytes = 1
+            else:
+                nbytes = self.clip.audio.reader.nbytes
+            return {
+                "nbytes": nbytes,
+                "nchannels": self.clip.audio.nchannels,
+                "fps": self.clip.audio.fps,
+                "buffersize": int(self.frame_interval * self.clip.audio.fps)
+            }
+
     def reset(self):
         """Resets the player and discards loaded data."""
-        self.clip = None
-        self.loaded_file = None
+        self._clip = None
+        self._loaded_file = None
 
-        self.fps = None
-        self.duration = None
+        self._fps = None
+        self._duration = None
 
-        self.status = UNINITIALIZED
-        self.clock.reset()
+        self._status = UNINITIALIZED
+        self._clock.reset()
 
-        self.loop_count = 0
+        self._loop_count = 0
+        self._8bit_hack_applied = False
 
-    def load_media(self, mediafile, play_audio=True):
+    def load_media(self, mediafile, play_audio=True, audio_fps=44100,
+                   audio_nbytes=2):
         """Loads a media file to decode.
 
         If an audiostream is detected, its parameters will be stored in a
@@ -154,48 +238,32 @@ class Decoder(object):
         mediafile : str
                 The path to the media file to load.
         play_audio : bool, optional
-                Indicates whether the audio of a movie should be played.
+                Indicates whether the audio of a movie should be played
+                (default=True)
+        audio_fps : int, optional
+                The requested sample rate of the audio stream (default=44100).
+        audio_nbytes : int, optional
+                The number of bytes to encode the audio with: 1 for 8bit audio,
+                2 for 16bit audio, 4 for 32bit audio (default=2).
 
         Raises
         ------
         IOError
                 When the file could not be found or loaded.
         """
+
         if not mediafile is None:
             if os.path.isfile(mediafile):
-                self.clip = VideoFileClip(mediafile, audio=play_audio)
+                if audio_nbytes == 1:
+                    self._8bit_hack_applied = True
+                    audio_nbytes = 2
+                self._play_audio = play_audio
+                self.clip = VideoFileClip(mediafile, audio=play_audio,
+                                          audio_fps=audio_fps,
+                                          audio_nbytes=audio_nbytes)
 
-                self.loaded_file = os.path.split(mediafile)[1]
-
-                ## Timing variables
-                # Clip duration
-                self.duration = self.clip.duration
-                self.clock.max_duration = self.clip.duration
-                logger.debug("Video clip duration: {}s".format(self.duration))
-
-                # Frames per second of clip
-                self.fps = self.clip.fps
-                self.clock.fps = self.clip.fps
-                logger.debug("Video clip FPS: {}".format(self.fps))
-
-                if play_audio and self.clip.audio:
-                    buffersize = int(self.frame_interval * self.clip.audio.fps)
-                    self.audioformat = {
-                        "nbytes": 2,
-                        "nchannels": self.clip.audio.nchannels,
-                        "fps": self.clip.audio.fps,
-                        "buffersize": buffersize,
-                    }
-                    logger.debug("Audio loaded: \n{}".format(self.audioformat))
-                    logger.debug(
-                        "Creating audio buffer of length:  {}".format(queue_length)
-                    )
-                    self.audioqueue = Queue(queue_length)
-                else:
-                    self.audioformat = None
 
                 logger.debug("Loaded {0}".format(mediafile))
-                self.status = READY
                 return True
             else:
                 raise IOError("File not found: {0}".format(mediafile))
@@ -269,7 +337,7 @@ class Decoder(object):
 
         ### If all is in order start the general playing loop
         if self.status == READY:
-            self.status = PLAYING
+            self._status = PLAYING
 
         self.last_frame_no = 0
 
@@ -302,20 +370,20 @@ class Decoder(object):
             # Recalculate audio stream position to make sure it is not out of
             # sync with the video
             self.__calculate_audio_frames()
-            self.status = PLAYING
-            self.clock.pause()
+            self._status = PLAYING
+            self._clock.pause()
         elif self.status == PLAYING:
-            self.status = PAUSED
-            self.clock.pause()
+            self._status = PAUSED
+            self._clock.pause()
 
     def stop(self):
         """Stops the video stream and resets the clock."""
 
         logger.debug("Stopping playback")
         # Stop the clock
-        self.clock.stop()
-        # Set plauyer status to ready
-        self.status = READY
+        self._clock.stop()
+        # Set player status to ready
+        self._status = READY
 
     def seek(self, value):
         """Seek to the specified time.
@@ -335,10 +403,10 @@ class Decoder(object):
         # Pause the stream
         self.pause()
         # Make sure the movie starts at 1s as 0s gives trouble.
-        self.clock.time = max(0.5, value)
+        self._clock.time = max(0.5, value)
         logger.debug(
             "Seeking to {} seconds; frame {}".format(
-                self.clock.time, self.clock.current_frame
+                self._clock.time, self._clock.current_frame
             )
         )
         if self.audioformat:
@@ -358,7 +426,7 @@ class Decoder(object):
 
         if self.audioformat is None:
             return
-        start_frame = self.clock.current_frame
+        start_frame = self._clock.current_frame
         totalsize = int(self.clip.audio.fps * self.clip.audio.duration)
         self.audio_times = list(range(0, totalsize, self.audioformat["buffersize"])) + [
             totalsize
@@ -377,24 +445,24 @@ class Decoder(object):
         self.__render_videoframe()
 
         # Start videoclock with start of this thread
-        self.clock.start()
+        self._clock.start()
 
         logger.debug("Started rendering loop.")
         # Main rendering loop
         while self.status in [PLAYING, PAUSED]:
-            current_frame_no = self.clock.current_frame
+            current_frame_no = self._clock.current_frame
 
             # Check if end of clip has been reached
-            if self.clock.time >= self.duration:
-                logger.debug("End of stream reached at {}".format(self.clock.time))
+            if self._clock.time >= self.duration:
+                logger.debug("End of stream reached at {}".format(self._clock.time))
                 if self.loop:
                     logger.debug("Looping: restarting stream")
                     # Seek to the start
                     self.rewind()
-                    self.loop_count += 1
+                    self._loop_count += 1
                 else:
                     # End of stream has been reached
-                    self.status = EOS
+                    self._status = EOS
                     break
 
             if self.last_frame_no != current_frame_no:
@@ -408,7 +476,7 @@ class Decoder(object):
             time.sleep(0.005)
 
         # Stop the clock.
-        self.clock.stop()
+        self._clock.stop()
         logger.debug("Rendering stopped.")
 
     def __render_videoframe(self):
@@ -417,7 +485,7 @@ class Decoder(object):
         Sets the frame as the __current_video_frame and passes it on to
         __videorenderfunc() if it is set."""
 
-        new_videoframe = self.clip.get_frame(self.clock.time)
+        new_videoframe = self.clip.get_frame(self._clock.time)
         # Pass it to the callback function if this is set
         if callable(self.__videorenderfunc):
             self.__videorenderfunc(new_videoframe)
@@ -429,6 +497,11 @@ class Decoder(object):
         but only as the target of a thread."""
         new_audioframe = None
         logger.debug("Started audio rendering thread.")
+
+        if self._8bit_hack_applied:
+            nbytes = 1
+        else:
+            nbytes = self.audioformat["nbytes"]
 
         while self.status in [PLAYING, PAUSED]:
             # Retrieve audiochunk
@@ -453,8 +526,9 @@ class Decoder(object):
                         # sure this doesn't crash the whole program.
                         new_audioframe = self.clip.audio.to_soundarray(
                             tt=chunk,
-                            buffersize=self.frame_interval * self.clip.audio.fps,
                             quantize=True,
+                            nbytes=nbytes,
+                            buffersize=self.frame_interval * self.clip.audio.fps,
                         )
                     except OSError as e:
                         logger.warning("Sound decoding error: {}".format(e))
