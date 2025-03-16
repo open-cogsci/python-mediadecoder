@@ -7,6 +7,8 @@ from __future__ import unicode_literals
 # MoviePy
 try:
     from moviepy.video.io.VideoFileClip import VideoFileClip
+    from moviepy.audio.io.AudioFileClip import AudioFileClip
+    from moviepy.audio.io.readers import FFMPEG_AudioReader
     import numpy as np
 except ImportError as e:
     try:
@@ -53,7 +55,7 @@ class Decoder(object):
     """
 
     def __init__(self, mediafile=None, videorenderfunc=None, play_audio=True,
-                 audio_fps=44100, audio_nbytes=2):
+                 audio_fps=44100, audio_nbytes=2, audio_nchannels=2):
         """
 		Constructor.
 
@@ -74,6 +76,8 @@ class Decoder(object):
         audio_nbytes : int, optional
             The number of bytes to encode the audio with: 1 for 8bit audio,
             2 for 16bit audio, 4 for 32bit audio (default=2).
+        audio_nchannels : int, optional
+            The number of channels to encode the audio with (default=2).
 
 		"""
         # Create an internal timer
@@ -82,7 +86,8 @@ class Decoder(object):
         # Load a video file if specified, but allow users to do this later
         # by initializing all variables to None
         self.reset()
-        self.load_media(mediafile, play_audio, audio_fps, audio_nbytes)
+        self.load_media(mediafile, play_audio, audio_fps, audio_nbytes,
+                        audio_nchannels)
 
         # Set callback function if set
         self.set_videoframerender_callback(videorenderfunc)
@@ -219,7 +224,7 @@ class Decoder(object):
         self._8bit_hack_applied = False
 
     def load_media(self, mediafile, play_audio=True, audio_fps=44100,
-                   audio_nbytes=2):
+                   audio_nbytes=2, audio_nchannels=2):
         """Loads a media file to decode.
 
         If an audiostream is detected, its parameters will be stored in a
@@ -236,20 +241,22 @@ class Decoder(object):
         Parameters
         ----------
         mediafile : str
-                The path to the media file to load.
+            The path to the media file to load.
         play_audio : bool, optional
-                Indicates whether the audio of a movie should be played
-                (default=True)
+            Indicates whether the audio of a movie should be played
+            (default=True)
         audio_fps : int, optional
-                The requested sample rate of the audio stream (default=44100).
+            The requested sample rate of the audio stream (default=44100).
         audio_nbytes : int, optional
-                The number of bytes to encode the audio with: 1 for 8bit audio,
-                2 for 16bit audio, 4 for 32bit audio (default=2).
+            The number of bytes to encode the audio with: 1 for 8bit audio,
+            2 for 16bit audio, 4 for 32bit audio (default=2).
+        audio_nchannels : int, optional
+            The number of channels to encode the audio with (default=2).
 
         Raises
         ------
         IOError
-                When the file could not be found or loaded.
+            When the file could not be found or loaded.
         """
 
         if not mediafile is None:
@@ -261,7 +268,17 @@ class Decoder(object):
                 self.clip = VideoFileClip(mediafile, audio=play_audio,
                                           audio_fps=audio_fps,
                                           audio_nbytes=audio_nbytes)
-
+                if play_audio and audio_nchannels !=2:
+                    # Run FFMPEG_AudioReader again to set nchannels
+                    self.clip.audio.reader = FFMPEG_AudioReader(
+                        mediafile, self.clip.audio.reader.buffersize,
+                        fps=audio_fps, nbytes=audio_nbytes,
+                        nchannels=audio_nchannels)
+                    self.clip.audio.nchannels=audio_nchannels
+                else:
+                    self.clip = VideoFileClip(mediafile, audio=play_audio,
+                                              audio_fps=audio_fps,
+                                              audio_nbytes=audio_nbytes)
 
                 logger.debug("Loaded {0}".format(mediafile))
                 return True
