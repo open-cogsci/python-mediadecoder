@@ -55,22 +55,26 @@ class Decoder(object):
     """
 
     def __init__(self, mediafile=None, videorenderfunc=None, play_audio=True,
-                 audio_fps=44100, audio_nbytes=2, audio_nchannels=2):
+                 target_resolution=None, audio_fps=44100, audio_nbytes=2,
+                 audio_nchannels=2):
         """
 		Constructor.
 
 		Parameters
 		----------
 		mediafile : str, optional
-			The path to the mediafile to be loaded (default: None)
-		videorenderfunc : callable (default: None)
-			Callback function that takes care of the actual
-			Rendering of the videoframe.\
-			The specified renderfunc should be able to accept the following
-			arguments:
+			The path to the mediafile to be loaded.
+		videorenderfunc : callable, optional
+			Callback function that takes care of the actual rendering of the
+            videoframe. The specified function should be able to accept the
+            following arguments:
 				- frame (numpy.ndarray): the videoframe to be rendered
 		play_audio : bool, optional
-			Whether audio of the clip should be played.
+			Whether audio of the clip should be played (default=True).
+        target_resolution : (int, int), optional
+            To request a specific video resolution (width, height) in pixels.
+            If either dimension is None, the frames are resized by keeping the
+            existing aspect ratio.
         audio_fps : int, optional
             The requested sample rate of the audio stream (default=44100).
         audio_nbytes : int, optional
@@ -78,7 +82,6 @@ class Decoder(object):
             2 for 16bit audio, 4 for 32bit audio (default=2).
         audio_nchannels : int, optional
             The number of channels to encode the audio with (default=2).
-
 		"""
         # Create an internal timer
         self._clock = Timer()
@@ -86,8 +89,8 @@ class Decoder(object):
         # Load a video file if specified, but allow users to do this later
         # by initializing all variables to None
         self.reset()
-        self.load_media(mediafile, play_audio, audio_fps, audio_nbytes,
-                        audio_nchannels)
+        self.load_media(mediafile, play_audio, target_resolution, audio_fps,
+                        audio_nbytes, audio_nchannels)
 
         # Set callback function if set
         self.set_videoframerender_callback(videorenderfunc)
@@ -209,6 +212,12 @@ class Decoder(object):
                 "buffersize": int(self.frame_interval * self.clip.audio.fps)
             }
 
+    @property
+    def resolution(self):
+        """Video resolution in pixels."""
+        if self.clip is not None:
+            return self.clip.size
+
     def reset(self):
         """Resets the player and discards loaded data."""
         self._clip = None
@@ -223,8 +232,8 @@ class Decoder(object):
         self._loop_count = 0
         self._8bit_hack_applied = False
 
-    def load_media(self, mediafile, play_audio=True, audio_fps=44100,
-                   audio_nbytes=2, audio_nchannels=2):
+    def load_media(self, mediafile, play_audio=True, target_resolution=None,
+                   audio_fps=44100, audio_nbytes=2, audio_nchannels=2):
         """Loads a media file to decode.
 
         If an audiostream is detected, its parameters will be stored in a
@@ -245,6 +254,10 @@ class Decoder(object):
         play_audio : bool, optional
             Indicates whether the audio of a movie should be played
             (default=True)
+        target_resolution : (int, int), optional
+            To request a specific video resolution (width, height) in pixels.
+            If either dimension is None, the frames are resized by keeping the
+            existing aspect ratio.
         audio_fps : int, optional
             The requested sample rate of the audio stream (default=44100).
         audio_nbytes : int, optional
@@ -266,6 +279,7 @@ class Decoder(object):
                     audio_nbytes = 2
                 self._play_audio = play_audio
                 self.clip = VideoFileClip(mediafile, audio=play_audio,
+                                          target_resolution=target_resolution,
                                           audio_fps=audio_fps,
                                           audio_nbytes=audio_nbytes)
                 if play_audio and audio_nchannels !=2:
@@ -276,9 +290,10 @@ class Decoder(object):
                         nchannels=audio_nchannels)
                     self.clip.audio.nchannels=audio_nchannels
                 else:
-                    self.clip = VideoFileClip(mediafile, audio=play_audio,
-                                              audio_fps=audio_fps,
-                                              audio_nbytes=audio_nbytes)
+                    self.clip = VideoFileClip(
+                        mediafile, audio=play_audio,
+                        target_resolution=target_resolution,
+                        audio_fps=audio_fps, audio_nbytes=audio_nbytes)
 
                 logger.debug("Loaded {0}".format(mediafile))
                 return True
