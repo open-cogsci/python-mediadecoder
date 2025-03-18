@@ -289,11 +289,6 @@ class Decoder(object):
                         fps=audio_fps, nbytes=audio_nbytes,
                         nchannels=audio_nchannels)
                     self.clip.audio.nchannels=audio_nchannels
-                else:
-                    self.clip = VideoFileClip(
-                        mediafile, audio=play_audio,
-                        target_resolution=target_resolution,
-                        audio_fps=audio_fps, audio_nbytes=audio_nbytes)
 
                 logger.debug("Loaded {0}".format(mediafile))
                 return True
