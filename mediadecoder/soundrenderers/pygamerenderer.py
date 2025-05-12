@@ -18,7 +18,8 @@ queue_timeout = 0.01
 class SoundrendererPygame(threading.Thread, SoundRenderer):
     """Uses pygame.mixer to play sound"""
 
-    def __init__(self, audioformat, queue=None, pygame_buffersize=None):
+    def __init__(self, audioformat, queue=None, pygame_buffersize=None,
+                 pygame_channel_id=None):
         """Constructor.
         Creates a pygame sound renderer using pygame.mixer.
 
@@ -31,6 +32,9 @@ class SoundrendererPygame(threading.Thread, SoundRenderer):
                 audio frames are placed by the decoder (default=None).
         pygame_buffersize : int, optional
                 The buffersize to be used in the Pygame mixer (default=None).
+        pygame_channel_id : int, optional
+                The ID of a specific pygame mixer channel to use. If none set,
+                an appropriate channel is selected automatically (default=None).
 
         """
         global pygame
@@ -63,6 +67,8 @@ class SoundrendererPygame(threading.Thread, SoundRenderer):
         else:
             self._own_mixer = False
 
+        self._channel_id = pygame_channel_id
+
     def run(self):
         """Main thread function."""
         global pygame
@@ -75,10 +81,18 @@ class SoundrendererPygame(threading.Thread, SoundRenderer):
         if not hasattr(self, "queue"):
             raise RuntimeError("Audio queue is not intialized.")
 
+        if self._channel_id is not None:
+            channel = pygame.mixer.Channel(self._channel_id)
+        else:
+            channel = pygame.mixer.find_channel(force=True)
+
         chunk = None
-        channel = None
+        first_chunk_played = False
+        last_channel_state = None
+        last_channel_state_change = None
         self.keep_listening = True
         while self.keep_listening:
+            start_time = time.perf_counter()
             if chunk is None:
                 try:
                     frame = self.queue.get(timeout=queue_timeout)
@@ -101,13 +115,27 @@ class SoundrendererPygame(threading.Thread, SoundRenderer):
                 except Empty:
                     continue
 
-            if channel is None:
-                channel = chunk.play()
+            if not first_chunk_played:
+                channel.play(chunk)
+                chunk = None
+                first_chunk_played = True
             else:
-                if not channel.get_queue():
+                playing_sound = channel.get_sound()
+                queued_sound = channel.get_queue()
+                if not queued_sound:
                     channel.queue(chunk)
                     chunk = None
-            time.sleep(0.005)
+                else:
+                    # Fix Pygame channel getting "stuck" (for some reason)
+                    now = time.perf_counter()
+                    if last_channel_state != [playing_sound, queued_sound]:
+                        last_channel_state = [playing_sound, queued_sound]
+                        last_channel_state_change = now
+                    elif last_channel_state_change is not None:
+                        if now - last_channel_state_change > \
+                                2 * chunk.get_length():
+                            channel.play(chunk)
+            time.sleep(max(0, 0.005 - (time.perf_counter() - start_time)))
 
         if not channel is None and pygame.mixer.get_init():
             channel.stop()
