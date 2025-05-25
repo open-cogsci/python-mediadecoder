@@ -92,7 +92,6 @@ class SoundrendererPygame(threading.Thread, SoundRenderer):
         last_channel_state_change = None
         self.keep_listening = True
         while self.keep_listening:
-            start_time = time.perf_counter()
             if chunk is None:
                 try:
                     frame = self.queue.get(timeout=queue_timeout)
@@ -135,7 +134,8 @@ class SoundrendererPygame(threading.Thread, SoundRenderer):
                         if now - last_channel_state_change > \
                                 2 * chunk.get_length():
                             channel.play(chunk)
-            time.sleep(max(0, 0.005 - (time.perf_counter() - start_time)))
+
+            time.sleep(0.005)
 
         if not channel is None and pygame.mixer.get_init():
             channel.stop()
