@@ -119,6 +119,11 @@ class Decoder(object):
         return self._clock.time
 
     @property
+    def loop_count(self):
+        """Indicates how often the clip has looped."""
+        return self._loop_count
+
+    @property
     def loop(self):
         """Indicates whether the playback should loop."""
         return self._loop
